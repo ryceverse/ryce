@@ -1,0 +1,46 @@
+.site-header{position:fixed;z-index:20;top:12px;left:var(--pad);right:var(--pad);display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.5rem .6rem .5rem 1rem;border-radius:999px;background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.logo{display:flex;align-items:center;gap:.6rem;text-decoration:none;font-weight:700;letter-spacing:.1em}
+.logo-slot{display:grid;place-items:center;width:2rem;height:2rem;border:1px dashed var(--accent);border-radius:50%;color:var(--accent);font-size:.9rem}
+.nav{display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;flex-direction:column;border-radius:var(--r);background:rgba(20,20,24,.85);border:1px solid var(--glass-line);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);overflow:hidden}
+.nav.open{display:flex}.nav a{padding:1rem 1.25rem;min-height:48px;text-decoration:none;color:var(--muted)}.nav a:hover{color:var(--text)}
+.nav-toggle{min-height:40px;padding:0 1rem;border-radius:999px;border:1px solid var(--glass-line);background:var(--glass);color:var(--text);cursor:pointer}
+@media(min-width:768px){.nav-toggle{display:none}.nav,.nav.open{display:flex;position:static;flex-direction:row;background:none;border:0;backdrop-filter:none;gap:.25rem}.nav a{padding:.45rem 1rem;min-height:0;border-radius:999px}.nav a:hover{background:var(--glass)}}
+.site-footer{display:grid;gap:1rem;padding:2rem var(--pad);border-top:1px solid var(--glass-line)}
+.site-footer p{margin:0}.footer-links{display:flex;flex-wrap:wrap;gap:1rem;list-style:none;margin:0;padding:0}.footer-links a{color:var(--muted)}
+@media(min-width:768px){.site-footer{grid-template-columns:1fr auto;align-items:center}.site-footer small{grid-column:1/-1}}
+small{color:var(--muted)}
+
+/* ---------- Footer: logo + icons ---------- */
+.foot-logo {
+  display: block;
+  width: auto;
+  height: 44px;
+}
+
+.foot-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+  color: var(--muted);
+  transition: color 0.2s, transform 0.25s, border-color 0.2s;
+}
+
+.foot-icon:hover {
+  color: var(--text);
+  border-color: #fff;
+  transform: translateY(-3px);
+}
+
+.foot-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.foot-icon .social-img {
+  max-width: 24px;
+  max-height: 24px;
+}

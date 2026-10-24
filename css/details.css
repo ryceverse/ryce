@@ -1,0 +1,217 @@
+/* =====================================================
+   DETAIL POPUP, LIGHTBOX, SOCIAL ICONS
+   ===================================================== */
+
+/* ---------- Animations ---------- */
+@keyframes lbIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------- Info (Nickname, UID, ...) ----------
+   One compact card. Labels share one column, so every value
+   starts at the same left position. */
+.info {
+  display: grid;
+  grid-template-columns: max-content auto;
+  column-gap: 2rem;
+  row-gap: 0.7rem;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.2rem 0;
+  padding: 1rem 1.4rem;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--glass-line);
+}
+
+/* The row wrapper disappears, its label and value join the grid */
+.info-row {
+  display: contents;
+}
+
+.info dt {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.info dd {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ---------- Copy button (icon only) ---------- */
+.copy-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s, border-color 0.2s, transform 0.2s;
+}
+
+.copy-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.copy-btn:hover {
+  color: var(--text);
+  border-color: #fff;
+  transform: translateY(-2px);
+}
+
+/* After a successful copy */
+.copy-btn.done {
+  color: #6ee7a0;
+  border-color: #6ee7a0;
+}
+
+/* ---------- Description + gallery ---------- */
+.desc {
+  color: #d4d4da;
+}
+
+.dlg-label {
+  margin-top: 1.4rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.shot {
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.shot img {
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.shot:hover img {
+  transform: scale(1.07);
+}
+
+/* ---------- Lightbox ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.lightbox[open] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The blur: everything behind the picture */
+.lightbox::backdrop {
+  background: rgba(5, 5, 8, 0.55);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  animation: backdropIn 0.4s ease;
+}
+
+.lightbox img {
+  max-width: min(92vw, 1400px);
+  max-height: 84vh;
+  border-radius: 18px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+}
+
+.lightbox img.swap {
+  animation: lbIn 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.lb-btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-line);
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.lb-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.lb-btn[hidden] {
+  display: none;
+}
+
+.lb-close {
+  top: 1.2rem;
+  right: 1.2rem;
+}
+
+.lb-prev {
+  left: 1.2rem;
+}
+
+.lb-next {
+  right: 1.2rem;
+}
+
+.lb-count {
+  position: absolute;
+  bottom: 1.2rem;
+  left: 50%;
+  translate: -50% 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ---------- Social icons (cards) ---------- */
+.thumb svg {
+  width: 44px;
+  height: 44px;
+  color: var(--text);
+}
+
+.social-img {
+  max-width: 56px;
+  max-height: 56px;
+}

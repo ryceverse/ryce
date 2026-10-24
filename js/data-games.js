@@ -111,8 +111,8 @@ const games = [
     title: 'Clash of Clans',
     genre: 'Strategy',
 
-    background: './assets/Clash of Clans/Wallpaper/Dragon Duke.webp',
-    cover: './assets/Clash of Clans/Wallpaper/Dragon Duke.webp',
+    background: './assets/Clash Of Clans/Wallpaper/Dragon Duke.webp',
+    cover: './assets/Clash Of Clans/Wallpaper/Dragon Duke.webp',
 
     info: [
       { label: 'Nickname', value: 'Ryce', copy: false },
@@ -122,9 +122,9 @@ const games = [
     description: '',
 
     gallery: [
-      './assets/Clash of Clans/foto1.jpg',
-      './assets/Clash of Clans/foto2.jpg',
-      './assets/Clash of Clans/foto3.jpg',
+      './assets/Clash Of Clans/foto1.jpg',
+      './assets/Clash Of Clans/foto2.jpg',
+      './assets/Clash Of Clans/foto3.jpg',
     ],
     video: '',
     url: '',

@@ -44,3 +44,17 @@ small{color:var(--muted)}
   max-width: 24px;
   max-height: 24px;
 }
+
+/* ---------- Footer: logo + text side by side ---------- */
+.foot-id {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.foot-tagline {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+}

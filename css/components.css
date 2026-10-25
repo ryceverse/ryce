@@ -1,5 +1,5 @@
 .stage{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:6rem var(--pad) 2rem;overflow:hidden}
-.bg,.layer,.shade{position:absolute;inset:0}.layer{opacity:0;transition:opacity .7s ease;background-size:cover!important;background-position:center!important}.layer.in{opacity:1}
+.bg,.layer,.shade{position:absolute;inset:0}.layer{opacity:0;transition:opacity .7s ease;will-change:opacity,transform;backface-visibility:hidden}.layer.in{opacity:1}
 .shade{background:linear-gradient(0deg,var(--bg) 4%,rgba(7,7,10,.35) 55%,rgba(7,7,10,.55)),linear-gradient(90deg,rgba(7,7,10,.7),transparent 65%)}
 .stage-info,.shelf{position:relative;z-index:1;max-width:1200px;width:100%;margin-inline:auto}
 .eyebrow{font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}

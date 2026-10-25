@@ -74,7 +74,7 @@ function buildVideo(game) {
 
   const isFile = /\.(mp4|webm)$/i.test(game.video);
   if (isFile) {
-    return `<video controls preload="metadata" src="${esc(game.video)}"></video>`;
+    return `<video controls preload="metadata" data-asset="${esc(game.video)}"></video>`;
   }
   return `
     <iframe src="https://www.youtube-nocookie.com/embed/${esc(game.video)}"
@@ -88,7 +88,7 @@ function buildGallery(game) {
 
   const shots = game.gallery.map((src, index) => `
     <button class="shot" data-index="${index}" aria-label="Open picture ${index + 1}">
-      <img src="${esc(src)}" alt="${esc(game.title)} picture ${index + 1}" loading="lazy">
+      <img data-asset="${esc(src)}" alt="${esc(game.title)} picture ${index + 1}" loading="lazy">
     </button>`).join('');
 
   return `
@@ -111,6 +111,7 @@ function openDetails(game) {
     ${buildGallery(game)}
     ${game.url ? `<p><a href="${esc(game.url)}" target="_blank" rel="noopener noreferrer">Open game profile</a></p>` : ''}`;
 
+  resolveImages(detailBody);
   detailDialog.showModal();
 }
 
@@ -170,16 +171,22 @@ detailDialog.addEventListener('close', () => {
 });
 
 // ---------- Lightbox (big picture, blurred page behind) ----------
-function showShot(index) {
+async function showShot(index) {
   const pictures = currentGame.gallery;
   lightboxIndex = (index + pictures.length) % pictures.length;
+  const wanted = lightboxIndex;
 
-  lbImg.src = pictures[lightboxIndex];
   lbCount.textContent = `${lightboxIndex + 1} / ${pictures.length}`;
 
   const hasMany = pictures.length > 1;
   lbPrev.hidden = !hasMany;
   lbNext.hidden = !hasMany;
+
+  // Find the real file (wrong extension or upper/lower case is fixed here)
+  const url = await resolveAsset(pictures[wanted]);
+  if (wanted !== lightboxIndex) return;   // user already moved on
+
+  lbImg.src = url || pictures[wanted];
 
   // Restart the small fade animation on every picture
   lbImg.classList.remove('swap');

@@ -42,7 +42,7 @@ const ICONS = {
 // Returns the icon for one social entry
 function socialIcon(social) {
   if (social.icon) {
-    return `<img class="social-img" src="${esc(social.icon)}" alt="">`;
+    return `<img class="social-img" data-asset="${esc(social.icon)}" alt="">`;
   }
   return ICONS[social.id] || esc(social.name[0]);
 }

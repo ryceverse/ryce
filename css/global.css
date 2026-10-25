@@ -1,7 +1,10 @@
 :root{--bg:#07070a;--text:#f3f3f5;--muted:#a3a3ad;--accent:#e5484d;--glass:rgba(255,255,255,.07);--glass-line:rgba(255,255,255,.14);--r:22px;--pad:clamp(1rem,4vw,3rem)}
 *{box-sizing:border-box}html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Segoe UI",system-ui,sans-serif;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 "Segoe UI",system-ui,sans-serif;overflow-x:clip;max-width:100%}
 h1,h2,h3{line-height:1.1;margin:0 0 .5rem}p{margin:0 0 1rem;color:var(--muted)}a{color:inherit}
 .glass{background:var(--glass);border:1px solid var(--glass-line);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:0 8px 32px rgba(0,0,0,.35)}
 a:focus-visible,button:focus-visible{outline:2px solid #fff;outline-offset:3px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+
+/* The page must never scroll sideways (iPhone Safari shifted the whole page) */
+html { overflow-x: hidden; }

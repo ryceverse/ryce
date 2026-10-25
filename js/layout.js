@@ -13,6 +13,9 @@ const esc = (text) =>
     "'": '&#39;',
   }[char]));
 
+// Text next to the footer logo (change it here)
+const FOOTER_TEXT = 'Gaming · Content · Community';
+
 // Menu links: [label, section id]
 const NAV_LINKS = [
   ['Games', '#games'],
@@ -71,7 +74,10 @@ function renderFooter() {
     .join('');
 
   return `
-    <img class="foot-logo" src="images/ryceverse-icon.webp" alt="Ryceverse logo">
+    <div class="foot-id">
+      <img class="foot-logo" src="images/ryceverse-icon.webp" alt="Ryceverse logo">
+      <p class="foot-tagline">${esc(FOOTER_TEXT)}</p>
+    </div>
     <ul class="footer-links">${socialLinks}</ul>
     <small>© ${new Date().getFullYear()}</small>`;
 }
@@ -79,4 +85,5 @@ function renderFooter() {
 // ---------- Put everything on the page ----------
 document.getElementById('site-header').innerHTML = renderHeader() + renderNavigation();
 document.getElementById('site-footer').innerHTML = renderFooter();
+resolveImages(document.getElementById('site-footer'));
 initNavigation();

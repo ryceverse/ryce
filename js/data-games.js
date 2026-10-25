@@ -140,7 +140,7 @@ const games = [
     title: 'Lost Saga',
     genre: 'Strategy',
 
-    background: './assets/Lost Saga/Wallpaper/foto1.webp',
+    background: './assets/Lost Saga/Cover/foto1.jpg',
     cover: './assets/Lost Saga/Cover/foto1.jpg',
 
     info: [
@@ -153,6 +153,11 @@ const games = [
       './assets/Lost Saga/foto1.jpg',
       './assets/Lost Saga/foto2.jpg',
       './assets/Lost Saga/foto3.jpg',
+      './assets/Lost Saga/foto4.jpg',
+      './assets/Lost Saga/foto5.jpg',
+      './assets/Lost Saga/foto6.jpg',
+      './assets/Lost Saga/foto7.jpg',
+      './assets/Lost Saga/foto8.jpg',
     ],
     video: '',
     url: '',

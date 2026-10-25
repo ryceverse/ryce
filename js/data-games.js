@@ -44,8 +44,8 @@ const games = [
       './assets/Genshin Impact/foto8.jpg',
       './assets/Genshin Impact/foto9.jpg',		
     ],
-    video: '',
-    url: 'https://youtu.be/1IBSFJGbla8?si=Stsn1mUCdnr1jvei',
+    video: 'https://youtu.be/1IBSFJGbla8?si=Stsn1mUCdnr1jvei',
+    url: '',
 
     visible: true,
     featured: true,

@@ -136,7 +136,7 @@ const games = [
 
 
   {
-    id: 'coc',
+    id: 'ls',
     title: 'Lost Saga',
     genre: 'Strategy',
 

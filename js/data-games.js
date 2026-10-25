@@ -134,6 +134,35 @@ const games = [
     order: 4,
   },
 
+
+  {
+    id: 'coc',
+    title: 'Lost Saga',
+    genre: 'Strategy',
+
+    background: './assets/Lost Saga/Wallpaper/foto1.jpg',
+    cover: './assets/Lost Saga/Cover/foto1.jpg',
+
+    info: [
+      { label: 'Nickname', value: 'LexusDarkTao', copy: true },
+      { label: 'Joined', value: '2010', copy: false },
+    ],
+    description: '',
+
+    gallery: [
+      './assets/Lost Saga/foto1.jpg',
+      './assets/Lost Saga/foto2.jpg',
+      './assets/Lost Saga/foto3.jpg',
+    ],
+    video: '',
+    url: '',
+
+    visible: true,
+    featured: true,
+    order: 5,
+  },	
+	
+
 ];
 
 // Only visible games, featured first, then by order

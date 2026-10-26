@@ -152,7 +152,7 @@ const games = [
     title: 'Lost Saga',
     genre: 'Strategy',
 
-    background: './assets/Lost Saga/Wallpaper/foto1.webp',
+    background: './assets/Lost Saga/Wallpaper/foto4.jpg',
     cover: './assets/Lost Saga/Cover/foto1.jpg',
 
     info: [

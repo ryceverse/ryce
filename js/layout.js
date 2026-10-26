@@ -13,8 +13,11 @@ const esc = (text) =>
     "'": '&#39;',
   }[char]));
 
-// Text next to the footer logo (change it here)
-const FOOTER_TEXT = 'Gaming · Content · Community';
+// Three labels under the footer logo (each gets a small dot)
+const FOOTER_TAGS = ['Gaming', 'Content', 'Community'];
+
+// Text at the very bottom ({year} becomes the current year)
+const FOOTER_COPYRIGHT = '© {year} Ryceverse. All Rights Reserved.';
 
 // Menu links: [label, section id]
 const NAV_LINKS = [
@@ -57,8 +60,14 @@ function initNavigation() {
   });
 }
 
-// ---------- Footer: logo + social icons ----------
+// ---------- Footer: logo, labels, links, social icons, copyright (all centered) ----------
 function renderFooter() {
+  const tags = FOOTER_TAGS.map((tag) => `<li>${esc(tag)}</li>`).join('');
+
+  const pageLinks = NAV_LINKS
+    .map(([label, href]) => `<a href="${href}">${label}</a>`)
+    .join('');
+
   const socialLinks = getSocials()
     .map((social) => `
       <li>
@@ -73,13 +82,17 @@ function renderFooter() {
       </li>`)
     .join('');
 
+  const copyright = FOOTER_COPYRIGHT.replace('{year}', new Date().getFullYear());
+
   return `
-    <div class="foot-id">
-      <img class="foot-logo" src="images/ryceverse-icon.webp" alt="Ryceverse logo">
-      <p class="foot-tagline">${esc(FOOTER_TEXT)}</p>
+    <div class="foot-brand">
+      <img class="foot-logo" src="images/ryceverse-wordmark.webp" alt="Ryceverse" height="36">
+      <ul class="foot-tags">${tags}</ul>
     </div>
+
+    <nav class="foot-nav" aria-label="Footer">${pageLinks}</nav>
     <ul class="footer-links">${socialLinks}</ul>
-    <small>© ${new Date().getFullYear()}</small>`;
+    <small class="foot-copy">${esc(copyright)}</small>`;
 }
 
 // ---------- Put everything on the page ----------

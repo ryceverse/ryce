@@ -190,7 +190,7 @@ function resolveAsset(path) {
 function resolveImages(container = document) {
   container.querySelectorAll('[data-asset]').forEach(async (element) => {
     const url = await resolveAsset(element.dataset.asset);
-    if (url) element.src = url;
+    if (url) element.src = url + (element.dataset.fragment || '');
   });
 }
 

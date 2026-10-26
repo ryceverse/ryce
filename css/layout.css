@@ -5,56 +5,121 @@
 .nav.open{display:flex}.nav a{padding:1rem 1.25rem;min-height:48px;text-decoration:none;color:var(--muted)}.nav a:hover{color:var(--text)}
 .nav-toggle{min-height:40px;padding:0 1rem;border-radius:999px;border:1px solid var(--glass-line);background:var(--glass);color:var(--text);cursor:pointer}
 @media(min-width:768px){.nav-toggle{display:none}.nav,.nav.open{display:flex;position:static;flex-direction:row;background:none;border:0;backdrop-filter:none;gap:.25rem}.nav a{padding:.45rem 1rem;min-height:0;border-radius:999px}.nav a:hover{background:var(--glass)}}
-.site-footer{display:grid;gap:1rem;padding:2rem var(--pad);border-top:1px solid var(--glass-line)}
-.site-footer p{margin:0}.footer-links{display:flex;flex-wrap:wrap;gap:1rem;list-style:none;margin:0;padding:0}.footer-links a{color:var(--muted)}
-@media(min-width:768px){.site-footer{grid-template-columns:1fr auto;align-items:center}.site-footer small{grid-column:1/-1}}
 small{color:var(--muted)}
 
-/* ---------- Footer: logo + icons ---------- */
+/* =====================================================
+   FOOTER (everything centered)
+   ===================================================== */
+.site-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  padding: 3.5rem 0 2.5rem;
+  text-align: center;
+}
+
+/* Logo + labels, with a full-width line under them */
+.foot-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
+  padding: 0 var(--pad) 2.2rem;
+  border-bottom: 1px solid var(--glass-line);
+}
+
 .foot-logo {
   display: block;
   width: auto;
-  height: 44px;
+  height: 36px;
+}
+
+.foot-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.foot-tags li::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+  vertical-align: middle;
+}
+
+/* Page links */
+.foot-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2.5rem;
+  padding: 0 var(--pad);
+}
+
+.foot-nav a {
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.foot-nav a:hover {
+  color: var(--accent);
+}
+
+/* Social icons: dark rounded squares with white icons */
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin: 0;
+  padding: 0 var(--pad);
+  list-style: none;
 }
 
 .foot-icon {
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--glass-line);
-  background: var(--glass);
-  color: var(--muted);
-  transition: color 0.2s, transform 0.25s, border-color 0.2s;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid transparent;
+  color: #fff;
+  transition: background 0.25s, transform 0.25s, border-color 0.25s;
 }
 
 .foot-icon:hover {
-  color: var(--text);
-  border-color: #fff;
+  background: rgba(255, 255, 255, 0.16);
+  border-color: var(--glass-line);
   transform: translateY(-3px);
 }
 
 .foot-icon svg {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
 }
 
 .foot-icon .social-img {
-  max-width: 24px;
-  max-height: 24px;
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
 }
 
-/* ---------- Footer: logo + text side by side ---------- */
-.foot-id {
-  display: flex;
-  align-items: center;
-  gap: 0.9rem;
-}
-
-.foot-tagline {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.85rem;
-  letter-spacing: 0.06em;
+.foot-copy {
+  padding: 0 var(--pad);
 }

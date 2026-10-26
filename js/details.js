@@ -40,6 +40,12 @@ const CHECK_ICON = `
     <path d="M5 12.5l4.5 4.5L19 7.5"/>
   </svg>`;
 
+// Icon on top of the video thumbnail
+const PLAY_ICON = `
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/>
+  </svg>`;
+
 let currentGame = null;
 let lightboxIndex = 0;
 
@@ -69,18 +75,98 @@ function buildInfo(game) {
   return `<dl class="info">${items}</dl>`;
 }
 
-function buildVideo(game) {
-  if (!game.video) return '';
+// Understands a YouTube link in any form (watch?v=, youtu.be/, shorts/, embed/, live/),
+// just the 11-character video ID, or a video file (.mp4 / .webm / .mov)
+function parseVideo(value) {
+  const text = String(value || '').trim();
+  if (!text) return { type: 'none' };
 
-  const isFile = /\.(mp4|webm)$/i.test(game.video);
-  if (isFile) {
-    return `<video controls preload="metadata" data-asset="${esc(game.video)}"></video>`;
+  if (/\.(mp4|webm|mov)(\?.*)?$/i.test(text)) return { type: 'file', src: text };
+  if (/^[\w-]{11}$/.test(text)) return { type: 'youtube', id: text };
+
+  try {
+    const url = new URL(text.startsWith('http') ? text : `https://${text}`);
+    const host = url.hostname.replace(/^(www|m)\./, '');
+    const parts = url.pathname.split('/').filter(Boolean);
+    let id = '';
+
+    if (host === 'youtu.be') {
+      id = parts[0];
+    } else if (host.endsWith('youtube.com') || host.endsWith('youtube-nocookie.com')) {
+      const isPathStyle = ['embed', 'shorts', 'live', 'v'].includes(parts[0]);
+      id = url.searchParams.get('v') || (isPathStyle ? parts[1] : '');
+    }
+
+    if (/^[\w-]{11}$/.test(id || '')) return { type: 'youtube', id };
+  } catch (error) {
+    // not a link, fall through
   }
-  return `
-    <iframe src="https://www.youtube-nocookie.com/embed/${esc(game.video)}"
-            title="${esc(game.title)} video"
-            allowfullscreen
-            loading="lazy"></iframe>`;
+
+  console.warn(`[video] Could not understand this video value: ${value}`);
+  return { type: 'none' };
+}
+
+function buildVideo(game) {
+  const video = parseVideo(game.video);
+
+  // YouTube: thumbnail first, the real player loads only after a click
+  if (video.type === 'youtube') {
+    return `
+      <div class="video-box">
+        <button class="video-preview" data-youtube="${esc(video.id)}" aria-label="Play video: ${esc(game.title)}">
+          <img data-id="${esc(video.id)}" alt="">
+          <span class="play-icon" aria-hidden="true">${PLAY_ICON}</span>
+        </button>
+        <a class="video-link" href="https://www.youtube.com/watch?v=${esc(video.id)}"
+           target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>
+      </div>`;
+  }
+
+  // Video file: the browser shows a frame of the video (or your own videoThumb picture)
+  if (video.type === 'file') {
+    const poster = game.videoThumb ? `data-poster="${esc(game.videoThumb)}"` : '';
+    return `
+      <video controls playsinline preload="metadata"
+             data-asset="${esc(video.src)}" data-fragment="#t=0.5" ${poster}></video>`;
+  }
+
+  return '';
+}
+
+// Thumbnail: best quality first, normal quality if that one does not exist
+function loadYoutubeThumbnails(container) {
+  container.querySelectorAll('.video-preview img').forEach((image) => {
+    const fallback = `https://i.ytimg.com/vi/${image.dataset.id}/hqdefault.jpg`;
+
+    image.onerror = () => {
+      image.onerror = null;
+      image.src = fallback;
+    };
+    image.onload = () => {
+      // YouTube answers with a tiny grey picture when the big one is missing
+      if (image.naturalWidth <= 120 && image.src !== fallback) image.src = fallback;
+    };
+    image.src = `https://i.ytimg.com/vi/${image.dataset.id}/maxresdefault.jpg`;
+  });
+}
+
+// Own thumbnail for a video file (optional field: videoThumb)
+function loadVideoPosters(container) {
+  container.querySelectorAll('video[data-poster]').forEach(async (video) => {
+    const url = await resolveAsset(video.dataset.poster);
+    if (url) video.poster = url;
+  });
+}
+
+// Click on the thumbnail: swap it for the real player and start playing
+function playYoutube(preview) {
+  const frame = document.createElement('iframe');
+  frame.src = `https://www.youtube-nocookie.com/embed/${preview.dataset.youtube}?autoplay=1&rel=0&playsinline=1`;
+  frame.title = `${currentGame.title} video`;
+  frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+  frame.allowFullscreen = true;
+  frame.referrerPolicy = 'strict-origin-when-cross-origin';
+  preview.replaceWith(frame);
 }
 
 function buildGallery(game) {
@@ -112,6 +198,8 @@ function openDetails(game) {
     ${game.url ? `<p><a href="${esc(game.url)}" target="_blank" rel="noopener noreferrer">Open game profile</a></p>` : ''}`;
 
   resolveImages(detailBody);
+  loadYoutubeThumbnails(detailBody);
+  loadVideoPosters(detailBody);
   detailDialog.showModal();
 }
 
@@ -139,6 +227,7 @@ detailBody.addEventListener('click', async (event) => {
   const closeButton = event.target.closest('#detail-close');
   const copyButton = event.target.closest('.copy-btn');
   const shot = event.target.closest('.shot');
+  const preview = event.target.closest('.video-preview');
 
   if (closeButton) {
     detailDialog.close();
@@ -157,6 +246,10 @@ detailBody.addEventListener('click', async (event) => {
 
   if (shot) {
     openLightbox(Number(shot.dataset.index));
+  }
+
+  if (preview) {
+    playYoutube(preview);
   }
 });
 

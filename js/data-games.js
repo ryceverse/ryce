@@ -58,7 +58,7 @@ const games = [
     genre: 'Turn-based RPG',
 
     background: './assets/Honkai Star Rail/Wallpaper/foto1.jpg',
-    cover: './assets/Honkai Star Rail/Cover/Castorice.webp',
+    cover: './assets/Honkai Star Rail/Cover/Cover.png',
 
     info: [
       { label: 'Nickname', value: 'Ryce', copy: false },

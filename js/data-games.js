@@ -23,8 +23,8 @@ const games = [
     title: 'Genshin Impact',
     genre: 'Action RPG',
 
-    background: './assets/Genshin Impact/Wallpaper/Ronova.webp',
-    cover: './assets/Genshin Impact/Wallpaper/Ronova.webp',
+    background: './assets/Genshin Impact/Wallpaper/7.2.webp',
+    cover: './assets/Genshin Impact/Wallpaper/7.2.webp',
 
     info: [
       { label: 'Nickname', value: 'Ryce', copy: false },

@@ -57,8 +57,8 @@ const games = [
     title: 'Honkai: Star Rail',
     genre: 'Turn-based RPG',
 
-    background: './assets/Honkai Star Rail/Wallpaper/Herta.jpg',
-    cover: './assets/Honkai Star Rail/Wallpaper/Herta.jpg',
+    background: './assets/Honkai Star Rail/Wallpaper/foto1.jpg',
+    cover: './assets/Honkai Star Rail/Cover/Castorice.webp',
 
     info: [
       { label: 'Nickname', value: 'Ryce', copy: false },
@@ -91,8 +91,8 @@ const games = [
     title: 'Mobile Legends: Bang Bang',
     genre: 'MOBA',
 
-    background: './assets/Mobile Legends/Wallpaper/Ling.jpg',
-    cover: './assets/Mobile Legends/Wallpaper/Ling.jpg',
+    background: './assets/Mobile Legends/Wallpaper/foto1.jpg',
+    cover: './assets/Mobile Legends/Cover/foto1.jpg',
 
     info: [
       { label: 'Nickname', value: 'Ryce', copy: false },

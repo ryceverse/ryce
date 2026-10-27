@@ -16,43 +16,6 @@
   }
 }
 
-/* ---------- Info (Nickname, UID, ...) ----------
-   One compact card. Labels share one column, so every value
-   starts at the same left position. */
-.info {
-  display: grid;
-  grid-template-columns: max-content auto;
-  column-gap: 2rem;
-  row-gap: 0.7rem;
-  align-items: center;
-  width: fit-content;
-  max-width: 100%;
-  margin: 1.2rem 0;
-  padding: 1rem 1.4rem;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--glass-line);
-}
-
-/* The row wrapper disappears, its label and value join the grid */
-.info-row {
-  display: contents;
-}
-
-.info dt {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.info dd {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.6rem;
-  margin: 0;
-  font-weight: 600;
-}
-
 /* ---------- Copy button (icon only) ---------- */
 .copy-btn {
   display: grid;
@@ -254,26 +217,24 @@
   margin: auto;
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   color: #fff;
   transition: transform 0.3s, background 0.3s;
 }
 
 .play-icon svg {
-  width: 26px;
-  height: 26px;
-  margin-left: 3px;
+  width: 22px;
+  height: 22px;
+  margin-left: 2px;
 }
 
 .video-preview:hover .play-icon {
-  transform: scale(1.1);
-  background: rgba(255, 255, 255, 0.24);
+  transform: scale(1.08);
+  background: rgba(0, 0, 0, 0.75);
 }
 
 .video-link {
@@ -281,4 +242,274 @@
   margin-top: 0.5rem;
   font-size: 0.85rem;
   color: var(--muted);
+}
+
+/* =====================================================
+   DETAIL POPUP LAYOUT (v6)
+   banner -> profile card -> description -> video -> gallery
+   ===================================================== */
+.dlg {
+  background: #0e1118;
+}
+
+.dlg-body {
+  padding: 0;
+}
+
+.dlg-content {
+  padding: 0.4rem 1.4rem 1.6rem;
+}
+
+/* ---------- Share + close buttons (stay visible while scrolling) ---------- */
+.dlg-actions {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  height: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: 0 1.2rem;
+}
+
+.round-btn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  margin-top: 1.1rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--glass-line);
+  background: rgba(20, 24, 34, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.round-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.06);
+}
+
+.round-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- Banner: wallpaper of the game ---------- */
+.dlg-banner {
+  position: relative;
+  isolation: isolate;
+  padding: 1.4rem 7rem 6.5rem 1.4rem;
+}
+
+.banner-art {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Darkens the wallpaper and fades it into the popup */
+.dlg-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(8, 10, 16, 0.2) 0%, rgba(14, 17, 24, 0.6) 55%, #0e1118 100%);
+}
+
+.dlg-banner h2 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.4rem, 4.5vw, 1.9rem);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Profile card ---------- */
+.profile-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 1.4rem;
+  margin: -4.8rem 1.4rem 1.4rem;
+  padding: 1.4rem 1.6rem;
+  border-radius: 22px;
+  background: rgba(20, 25, 36, 0.78);
+  border: 1px solid var(--glass-line);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.avatar-ring {
+  position: relative;
+  width: clamp(84px, 22vw, 128px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  background: #1a1d26;
+}
+
+.avatar-ring img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initial {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.profile-main {
+  min-width: 0;
+  padding-right: 4.5rem;
+}
+
+.profile-name {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: clamp(1.4rem, 4.5vw, 1.9rem);
+}
+
+.profile-bio {
+  margin: 0.15rem 0 0;
+  font-size: 0.9rem;
+  color: #cfd3dc;
+}
+
+.joined {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.5rem;
+  text-align: right;
+  line-height: 1.25;
+}
+
+.joined small {
+  display: block;
+  font-size: 0.75rem;
+}
+
+.joined strong {
+  font-size: 1.05rem;
+}
+
+/* ---------- Stats: labels share one column, so values line up ---------- */
+.stats {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  column-gap: 1.6rem;
+  row-gap: 0.5rem;
+  align-items: center;
+  margin: 0.9rem 0 0;
+}
+
+.stat {
+  display: contents;
+}
+
+.stats dt {
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.stats dd {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* ---------- Skill progress bar ---------- */
+@keyframes barGrow {
+  from {
+    width: 0;
+  }
+}
+
+.bar {
+  display: block;
+  width: min(100%, 220px);
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  width: calc(var(--p) * 1%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, #3b6cf0, #a5dcff);
+  animation: barGrow 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s backwards;
+}
+
+/* ---------- Message at the bottom ---------- */
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  translate: -50% 0;
+  z-index: 30;
+  padding: 0.6rem 1.1rem;
+  border-radius: 999px;
+  background: rgba(30, 34, 44, 0.96);
+  border: 1px solid var(--glass-line);
+  color: #fff;
+  font-size: 0.85rem;
+  animation: toastIn 0.3s ease;
+}
+
+/* ---------- Small phones ---------- */
+@media (max-width: 520px) {
+  .dlg-content {
+    padding-inline: 1rem;
+  }
+
+  .profile-card {
+    gap: 1rem;
+    margin-inline: 1rem;
+    padding: 1.1rem;
+  }
+
+  .profile-main {
+    padding-right: 0;
+  }
+
+  /* The join year moves under the card content instead of the corner */
+  .joined {
+    position: static;
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    text-align: left;
+  }
 }

@@ -214,6 +214,22 @@ if (visibleGames.length) {
   info.innerHTML = '<h1>RYCE</h1><p>No games to show yet.</p>';
 }
 
+// ---------- Share link: yoursite/#genshin opens that game's popup ----------
+function sharedGameId() {
+  try {
+    return decodeURIComponent(location.hash.slice(1));
+  } catch (error) {
+    return '';   // a broken link, just ignore it
+  }
+}
+
+const sharedIndex = visibleGames.findIndex((game) => game.id === sharedGameId());
+
+if (sharedIndex >= 0) {
+  selectGame(sharedIndex);
+  openDetails(visibleGames[sharedIndex]);
+}
+
 // ---------- Social cards slide in when scrolled into view ----------
 const connectSection = document.getElementById('connect');
 

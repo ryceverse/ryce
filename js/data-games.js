@@ -1,4 +1,4 @@
-	// =====================================================
+// =====================================================
 // GAME LIST
 // -----------------------------------------------------
 // Add a game      = copy one { ... } block and paste it below
@@ -7,13 +7,24 @@
 // Change position = order (smaller number comes first)
 // Show first      = featured: true
 //
-// background = big wallpaper behind the page
-// cover      = small picture on the tile
-// info       = rows in the detail popup (empty value = row is hidden)
-//              copy: true adds a "Copy" button next to the value
-// description= text under the info rows
-// gallery    = pictures in the popup (click = big preview)
-// video      = YouTube video ID (e.g. 'dQw4w9WgXcQ') or a file like './assets/clip.mp4'
+// background  = big wallpaper behind the page (also the popup banner)
+// cover       = small picture on the tile
+// focus       = (optional) which part of the wallpaper stays visible,
+//               e.g. focus: 'center top' or 'center 30%'
+//
+// profile     = the card in the detail popup. An empty value hides that part.
+//   avatar    = round profile picture
+//   name      = nickname      copyName: true adds a copy icon next to it
+//   bio       = short text under the name
+//   joined    = year shown as "Bergabung"
+//   stats     = rows under the bio:
+//                 { label: 'UID', value: '123', copy: true }   -> copy icon
+//                 { label: 'Skill', progress: 90 }              -> bar (0 - 100)
+//
+// description = text under the profile card
+// gallery     = pictures in the popup (click = big preview)
+// video       = YouTube link / video ID, or a file like './assets/clip.mp4'
+//               (optional videoThumb: './assets/....jpg' = own thumbnail for a file)
 // =====================================================
 
 const games = [
@@ -26,11 +37,18 @@ const games = [
     background: './assets/Genshin Impact/Wallpaper/Wallpaper.png',
     cover: './assets/Genshin Impact/Cover/Cover.png',
 
-    info: [
-      { label: 'Nickname', value: 'Ryce', copy: false },
-      { label: 'UID', value: '820476661', copy: true },
-      { label: 'Joined', value: '2016',},
-    ],
+    profile: {
+      avatar: './assets/Genshin Impact/Profile/Profile.png',
+      name: 'Ryce',
+      copyName: false,
+      bio: 'Hanya Pengembara Biasa',
+      joined: '2016',
+      stats: [
+        { label: 'UID', value: '820476661', copy: true },
+        { label: 'AR', value: '60' },
+        { label: 'Skill', progress: 90 },
+      ],
+    },
     description: '',
 
     gallery: [
@@ -42,7 +60,7 @@ const games = [
       './assets/Genshin Impact/foto6.jpg',
       './assets/Genshin Impact/foto7.jpg',
       './assets/Genshin Impact/foto8.jpg',
-      './assets/Genshin Impact/foto9.jpg',		
+      './assets/Genshin Impact/foto9.jpg',
     ],
     video: 'https://youtu.be/1IBSFJGbla8?si=Stsn1mUCdnr1jvei',
     url: '',
@@ -60,11 +78,16 @@ const games = [
     background: './assets/Honkai Star Rail/Wallpaper/foto1.jpg',
     cover: './assets/Honkai Star Rail/Cover/Cover.png',
 
-    info: [
-      { label: 'Nickname', value: 'Ryce', copy: false },
-      { label: 'UID', value: '808783651', copy: true },
-      { label: 'Joined', value: '2018', copy: false },
-    ],
+    profile: {
+      avatar: './assets/Honkai Star Rail/Profile/Profile.png',
+      name: 'Ryce',
+      copyName: false,
+      bio: '',
+      joined: '2018',
+      stats: [
+        { label: 'UID', value: '808783651', copy: true },
+      ],
+    },
     description: '',
 
     gallery: [
@@ -76,7 +99,7 @@ const games = [
       './assets/Honkai Star Rail/foto6.jpg',
       './assets/Honkai Star Rail/foto7.jpg',
       './assets/Honkai Star Rail/foto8.jpg',
-      './assets/Honkai Star Rail/foto9.jpg',		
+      './assets/Honkai Star Rail/foto9.jpg',
     ],
     video: '',
     url: '',
@@ -94,11 +117,16 @@ const games = [
     background: './assets/Mobile Legends/Wallpaper/foto1.jpg',
     cover: './assets/Mobile Legends/Cover/foto1.jpg',
 
-    info: [
-      { label: 'Nickname', value: 'Ryce', copy: false },
-      { label: 'ID', value: '97255743 (2504)', copy: true },
-      { label: 'Joined', value: '2016',},
-    ],
+    profile: {
+      avatar: './assets/Mobile Legends/Profile/Profile.png',
+      name: 'Ryce',
+      copyName: false,
+      bio: '',
+      joined: '2016',
+      stats: [
+        { label: 'ID', value: '97255743 (2504)', copy: true },
+      ],
+    },
     description: '',
 
     gallery: [
@@ -126,11 +154,16 @@ const games = [
     background: './assets/Clash Of Clans/Wallpaper/Dragon Duke.webp',
     cover: './assets/Clash Of Clans/Wallpaper/Dragon Duke.webp',
 
-    info: [
-      { label: 'Nickname', value: 'Ryce', copy: false },
-      { label: 'Player Tag', value: '#C89RRY8', copy: true },
-      { label: 'Joined', value: '2016', copy: false },
-    ],
+    profile: {
+      avatar: './assets/Clash Of Clans/Profile/Profile.png',
+      name: 'Ryce',
+      copyName: false,
+      bio: '',
+      joined: '2016',
+      stats: [
+        { label: 'Player Tag', value: '#C89RRY8', copy: true },
+      ],
+    },
     description: '',
 
     gallery: [
@@ -146,7 +179,6 @@ const games = [
     order: 4,
   },
 
-
   {
     id: 'ls',
     title: 'Lost Saga',
@@ -155,10 +187,15 @@ const games = [
     background: './assets/Lost Saga/Wallpaper/foto4.jpg',
     cover: './assets/Lost Saga/Cover/foto1.jpg',
 
-    info: [
-      { label: 'Nickname', value: 'LexusDarkTao', copy: true },
-      { label: 'Joined', value: '2010', copy: false },
-    ],
+    profile: {
+      avatar: './assets/Lost Saga/Profile/Profile.png',
+      name: 'LexusDarkTao',
+      copyName: true,
+      bio: '',
+      joined: '2010',
+      stats: [
+      ],
+    },
     description: '',
 
     gallery: [
@@ -177,9 +214,9 @@ const games = [
     visible: true,
     featured: true,
     order: 5,
-  },	
-	
-{
+  },
+
+  {
     id: 'chess',
     title: 'Chess',
     genre: 'Strategy',
@@ -187,11 +224,16 @@ const games = [
     background: './assets/Chess/Wallpaper/foto1.jpg',
     cover: './assets/Chess/Cover/foto2.png',
 
-    info: [
-      { label: 'Nickname', value: 'fikrispt', copy: true },
-      { label: 'Joined', value: '2023', copy: false },
-	  { label: 'Rating', value: '1500', copy: false },
-    ],
+    profile: {
+      avatar: './assets/Chess/Profile/Profile.png',
+      name: 'fikrispt',
+      copyName: true,
+      bio: '',
+      joined: '2023',
+      stats: [
+        { label: 'Rating', value: '1500' },
+      ],
+    },
     description: '',
 
     gallery: [
@@ -205,7 +247,7 @@ const games = [
     visible: true,
     featured: true,
     order: 6,
-  },		
+  },
 
 ];
 

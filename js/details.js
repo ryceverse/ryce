@@ -46,33 +46,124 @@ const PLAY_ICON = `
     <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/>
   </svg>`;
 
+// Texts shown in the popup (change them here)
+const LABELS = {
+  joined: 'Bergabung',
+  gallery: 'Gallery',
+  watch: 'Watch on YouTube ↗',
+  share: 'Share profile',
+  close: 'Close',
+  savedAndCopied: 'Picture saved, link copied',
+  linkCopied: 'Link copied',
+  shareFailed: 'Could not share',
+  localOnly: 'Link copied. Picture sharing works on the live website',
+};
+
+// Icons for the two round buttons
+const SHARE_ICON = `
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M14 4.5 21 10.5l-7 6v-3.7c-5.2-.2-8.4 1.4-10.5 5.2.5-5.7 4-9.6 10.5-10.3z"/>
+  </svg>`;
+
+const CLOSE_ICON = `
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+       stroke-linecap="round" aria-hidden="true">
+    <path d="M6 6l12 12M18 6L6 18"/>
+  </svg>`;
+
 let currentGame = null;
 let lightboxIndex = 0;
 
 // ---------- Small builders for each part of the popup ----------
-function buildInfo(game) {
-  const rows = (game.info || []).filter((row) => row.value);
-  if (!rows.length) return '';
+// ---------- Profile data of one game ----------
+// New format: game.profile = { avatar, name, bio, joined, copyName, stats: [...] }
+// Old format (game.info rows) still works and is converted here.
+function legacyProfile(game) {
+  const rows = game.info || [];
+  const nickname = rows.find((row) => /^nick/i.test(row.label));
+  const joined = rows.find((row) => /^(join|bergabung)/i.test(row.label));
 
-  const items = rows.map((row) => {
-    const copyButton = row.copy
-      ? `<button class="copy-btn"
-                 data-copy="${esc(row.value)}"
-                 aria-label="Copy ${esc(row.label)}"
-                 title="Copy">${COPY_ICON}</button>`
-      : '';
+  return {
+    name: nickname ? nickname.value : '',
+    copyName: Boolean(nickname && nickname.copy),
+    joined: joined ? joined.value : '',
+    stats: rows.filter((row) => row !== nickname && row !== joined),
+  };
+}
 
-    return `
-      <div class="info-row">
-        <dt>${esc(row.label)}</dt>
-        <dd>
-          <span>${esc(row.value)}</span>
-          ${copyButton}
-        </dd>
-      </div>`;
-  }).join('');
+function getPerson(game) {
+  const own = game.profile || legacyProfile(game);
 
-  return `<dl class="info">${items}</dl>`;
+  return {
+    avatar: own.avatar || '',
+    name: own.name || profile.name,
+    bio: own.bio || '',
+    joined: own.joined || '',
+    copyName: Boolean(own.copyName),
+    stats: (own.stats || []).filter((stat) => stat.value || stat.progress != null),
+  };
+}
+
+// ---------- Profile card (avatar, name, bio, stats, joined) ----------
+function copyButton(value, label) {
+  return `
+    <button class="copy-btn" data-copy="${esc(value)}"
+            aria-label="Copy ${esc(label)}" title="Copy">${COPY_ICON}</button>`;
+}
+
+function buildStat(stat) {
+  const parts = [];
+
+  if (stat.value) {
+    parts.push(`<span>${esc(stat.value)}</span>`);
+  }
+
+  if (stat.progress != null) {
+    const percent = Math.max(0, Math.min(100, Number(stat.progress) || 0));
+    parts.push(`
+      <span class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}">
+        <span class="bar-fill" style="--p:${percent}"></span>
+      </span>`);
+  }
+
+  if (stat.copy && stat.value) {
+    parts.push(copyButton(stat.value, stat.label));
+  }
+
+  return `
+    <div class="stat">
+      <dt>${esc(stat.label)}</dt>
+      <dd>${parts.join('')}</dd>
+    </div>`;
+}
+
+function buildProfileCard(game) {
+  const person = getPerson(game);
+  const hasAnything = person.avatar || person.bio || person.joined || person.stats.length;
+  if (!hasAnything && !(game.profile && game.profile.name)) return '';
+
+  const initial = esc((person.name || game.title).charAt(0).toUpperCase());
+  const avatar = person.avatar ? `<img data-asset="${esc(person.avatar)}" alt="">` : '';
+
+  return `
+    <section class="profile-card">
+      <div class="avatar-ring">
+        <span class="avatar-initial">${initial}</span>
+        ${avatar}
+      </div>
+
+      <div class="profile-main">
+        <h3 class="profile-name">${esc(person.name)}${person.copyName ? copyButton(person.name, 'name') : ''}</h3>
+        ${person.bio ? `<p class="profile-bio">${esc(person.bio)}</p>` : ''}
+        ${person.stats.length ? `<dl class="stats">${person.stats.map(buildStat).join('')}</dl>` : ''}
+      </div>
+
+      ${person.joined ? `
+      <div class="joined">
+        <small>${esc(LABELS.joined)}</small>
+        <strong>${esc(person.joined)}</strong>
+      </div>` : ''}
+    </section>`;
 }
 
 // Understands a YouTube link in any form (watch?v=, youtu.be/, shorts/, embed/, live/),
@@ -118,7 +209,7 @@ function buildVideo(game) {
           <span class="play-icon" aria-hidden="true">${PLAY_ICON}</span>
         </button>
         <a class="video-link" href="https://www.youtube.com/watch?v=${esc(video.id)}"
-           target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a>
+           target="_blank" rel="noopener noreferrer">${esc(LABELS.watch)}</a>
       </div>`;
   }
 
@@ -160,12 +251,25 @@ function loadVideoPosters(container) {
 
 // Click on the thumbnail: swap it for the real player and start playing
 function playYoutube(preview) {
+  const id = preview.dataset.youtube;
+
+  // YouTube refuses to play ("Error 153") when the page has no web address.
+  // That is the case when index.html is opened as a local file, so the
+  // video simply opens on YouTube instead.
+  if (location.protocol === 'file:') {
+    window.open(`https://www.youtube.com/watch?v=${id}`, '_blank', 'noopener');
+    return;
+  }
+
   const frame = document.createElement('iframe');
-  frame.src = `https://www.youtube-nocookie.com/embed/${preview.dataset.youtube}?autoplay=1&rel=0&playsinline=1`;
+
+  // The referrer policy must be set BEFORE the address (YouTube needs it)
+  frame.referrerPolicy = 'strict-origin-when-cross-origin';
   frame.title = `${currentGame.title} video`;
   frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
   frame.allowFullscreen = true;
-  frame.referrerPolicy = 'strict-origin-when-cross-origin';
+  frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&rel=0&playsinline=1&origin=${encodeURIComponent(location.origin)}`;
+
   preview.replaceWith(frame);
 }
 
@@ -178,29 +282,57 @@ function buildGallery(game) {
     </button>`).join('');
 
   return `
-    <h3 class="dlg-label">Gallery</h3>
+    <h3 class="dlg-label">${esc(LABELS.gallery)}</h3>
     <div class="gallery">${shots}</div>`;
 }
 
+// ---------- Small message at the bottom ----------
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  detailDialog.appendChild(toast);
+  setTimeout(() => toast.remove(), 2400);
+}
+
 // ---------- Open the detail popup ----------
+// Order: banner (title) -> profile card -> description -> video -> gallery
 function openDetails(game) {
   currentGame = game;
 
   detailBody.innerHTML = `
-    <button class="btn glass dlg-close" id="detail-close">Close</button>
-    <h2>${esc(game.title)}</h2>
-    <span class="tag glass">${esc(game.genre)}</span>
+    <div class="dlg-actions">
+      <button class="round-btn" id="detail-share"
+              aria-label="${esc(LABELS.share)}" title="${esc(LABELS.share)}">${SHARE_ICON}</button>
+      <button class="round-btn" id="detail-close"
+              aria-label="${esc(LABELS.close)}" title="${esc(LABELS.close)}">${CLOSE_ICON}</button>
+    </div>
 
-    ${buildInfo(game)}
-    ${game.description ? `<p class="desc">${esc(game.description)}</p>` : ''}
-    ${buildVideo(game)}
-    ${buildGallery(game)}
-    ${game.url ? `<p><a href="${esc(game.url)}" target="_blank" rel="noopener noreferrer">Open game profile</a></p>` : ''}`;
+    <header class="dlg-banner">
+      <div class="banner-art" id="banner-art"></div>
+      <h2>${esc(game.title)}</h2>
+      <span class="tag glass">${esc(game.genre)}</span>
+    </header>
+
+    ${buildProfileCard(game)}
+
+    <div class="dlg-content">
+      ${game.description ? `<p class="desc">${esc(game.description)}</p>` : ''}
+      ${buildVideo(game)}
+      ${buildGallery(game)}
+      ${game.url ? `<p><a href="${esc(game.url)}" target="_blank" rel="noopener noreferrer">Open game profile</a></p>` : ''}
+    </div>`;
+
+  // Same wallpaper as the page behind
+  paintImage(document.getElementById('banner-art'), game.background, game.focus || 'center');
 
   resolveImages(detailBody);
   loadYoutubeThumbnails(detailBody);
   loadVideoPosters(detailBody);
+  prepareShareCard(game);
+
   detailDialog.showModal();
+  detailDialog.scrollTop = 0;
 }
 
 // ---------- Copy to clipboard ----------
@@ -225,7 +357,8 @@ async function copyText(text) {
 // ---------- Clicks inside the detail popup ----------
 detailBody.addEventListener('click', async (event) => {
   const closeButton = event.target.closest('#detail-close');
-  const copyButton = event.target.closest('.copy-btn');
+  const shareButton = event.target.closest('#detail-share');
+  const copyTarget = event.target.closest('.copy-btn');
   const shot = event.target.closest('.shot');
   const preview = event.target.closest('.video-preview');
 
@@ -233,14 +366,18 @@ detailBody.addEventListener('click', async (event) => {
     detailDialog.close();
   }
 
-  if (copyButton) {
-    const worked = await copyText(copyButton.dataset.copy);
-    copyButton.innerHTML = worked ? CHECK_ICON : '✕';
-    copyButton.classList.toggle('done', worked);
+  if (shareButton) {
+    shareProfile(currentGame);
+  }
+
+  if (copyTarget) {
+    const worked = await copyText(copyTarget.dataset.copy);
+    copyTarget.innerHTML = worked ? CHECK_ICON : '✕';
+    copyTarget.classList.toggle('done', worked);
 
     setTimeout(() => {
-      copyButton.innerHTML = COPY_ICON;
-      copyButton.classList.remove('done');
+      copyTarget.innerHTML = COPY_ICON;
+      copyTarget.classList.remove('done');
     }, 1600);
   }
 

@@ -22,3 +22,8 @@ Icon sosmed bawaan ada di `js/icons.js`; mau logo sendiri, tambah `icon: './asse
 Salah tulis format (`.jpg` padahal `.webp`) atau huruf besar/kecil nama folder? Tidak masalah, file asli dicari otomatis oleh `js/assets.js`.
 Wallpaper terpotong? Tambah `focus: 'center top'` (atau `'center 30%'`) di game itu di `js/data-games.js` untuk mengatur bagian gambar yang ditampilkan.
 Ukuran wallpaper yang disarankan: 1920 x 1080 (16:9), objek utama di tengah, format .webp, di bawah 500 KB.
+
+## Popup detail versi baru (v6)
+Tiap game di `js/data-games.js` punya blok `profile`: `avatar`, `name`, `bio`, `joined`, `stats` (baris seperti UID / AR; `copy: true` = icon salin, `progress: 90` = bar 0-100).
+Kosongkan nilai untuk menyembunyikan baris itu. Format `info` yang lama tetap terbaca.
+Tombol share membuat gambar kartu profil + link (`.../#genshin` langsung membuka popup game itu). Teks popup bisa diedit di `LABELS` bagian atas `js/details.js`.

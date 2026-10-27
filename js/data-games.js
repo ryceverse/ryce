@@ -179,6 +179,33 @@ const games = [
     order: 5,
   },	
 	
+{
+    id: 'chess',
+    title: 'Chess',
+    genre: 'Strategy',
+
+    background: './assets/Chess/Wallpaper/foto1.jpg',
+    cover: './assets/Chess/Cover/foto1.jpg',
+
+    info: [
+      { label: 'Nickname', value: 'fikrispt', copy: true },
+      { label: 'Joined', value: '2023', copy: false },
+	  { label: 'Rating', value: '1500', copy: false },
+    ],
+    description: '',
+
+    gallery: [
+      './assets/Chess/foto1.jpg',
+      './assets/Chess/foto2.jpg',
+      './assets/Chess/foto3.jpg',
+    ],
+    video: '',
+    url: '',
+
+    visible: true,
+    featured: true,
+    order: 6,
+  },		
 
 ];
 

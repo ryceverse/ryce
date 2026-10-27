@@ -46,7 +46,7 @@ const games = [
       stats: [
         { label: 'UID', value: '820476661', copy: true },
         { label: 'AR', value: '60' },
-        { label: 'Skill', progress: 90 },
+        { label: 'Exprolasi', progress: 90 },
       ],
     },
     description: '',
@@ -86,6 +86,8 @@ const games = [
       joined: '2018',
       stats: [
         { label: 'UID', value: '808783651', copy: true },
+        { label: 'TL', value: '70' },
+        { label: 'Exprolasi', progress: 70 },
       ],
     },
     description: '',
@@ -161,7 +163,9 @@ const games = [
       bio: '',
       joined: '2016',
       stats: [
-        { label: 'Player Tag', value: '#C89RRY8', copy: true },
+        { label: 'Player Tag', value: '#C89RRY8', copy: true },       
+        { label: 'Town Hall', value: '17' },
+        { label: 'Exprolasi', progress: 70 },
       ],
     },
     description: '',
@@ -194,6 +198,8 @@ const games = [
       bio: '',
       joined: '2010',
       stats: [
+        { label: 'Rank', value: 'COL Class 2' },
+        { label: 'Exprolasi', progress: 80 },  
       ],
     },
     description: '',
@@ -232,6 +238,7 @@ const games = [
       joined: '2023',
       stats: [
         { label: 'Rating', value: '1500' },
+        { label: 'Skill', progress: 50 },  
       ],
     },
     description: '',

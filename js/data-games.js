@@ -185,7 +185,7 @@ const games = [
     genre: 'Strategy',
 
     background: './assets/Chess/Wallpaper/foto1.jpg',
-    cover: './assets/Chess/Cover/foto1.jpg',
+    cover: './assets/Chess/Cover/foto2.png',
 
     info: [
       { label: 'Nickname', value: 'fikrispt', copy: true },

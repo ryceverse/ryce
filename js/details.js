@@ -5,11 +5,11 @@
 
 // ---------- Create both popups once ----------
 document.body.insertAdjacentHTML('beforeend', `
-  <dialog id="detail" class="dlg glass">
+  <dialog id="detail" class="dlg glass" tabindex="-1">
     <div class="dlg-body" id="detail-body"></div>
   </dialog>
 
-  <dialog id="lightbox" class="lightbox">
+  <dialog id="lightbox" class="lightbox" tabindex="-1">
     <button class="lb-btn lb-close" id="lb-close" aria-label="Close picture">✕</button>
     <button class="lb-btn lb-prev" id="lb-prev" aria-label="Previous picture">‹</button>
     <img id="lb-img" alt="">
@@ -152,11 +152,12 @@ function buildProfileCard(game) {
         ${avatar}
       </div>
 
-      <div class="profile-main">
+      <div class="profile-head">
         <h3 class="profile-name">${esc(person.name)}${person.copyName ? copyButton(person.name, 'name') : ''}</h3>
         ${person.bio ? `<p class="profile-bio">${esc(person.bio)}</p>` : ''}
-        ${person.stats.length ? `<dl class="stats">${person.stats.map(buildStat).join('')}</dl>` : ''}
       </div>
+
+      ${person.stats.length ? `<dl class="stats">${person.stats.map(buildStat).join('')}</dl>` : ''}
 
       ${person.joined ? `
       <div class="joined">
@@ -308,13 +309,16 @@ function openDetails(game) {
               aria-label="${esc(LABELS.close)}" title="${esc(LABELS.close)}">${CLOSE_ICON}</button>
     </div>
 
-    <header class="dlg-banner">
+    <div class="dlg-hero">
       <div class="banner-art" id="banner-art"></div>
-      <h2>${esc(game.title)}</h2>
-      <span class="tag glass">${esc(game.genre)}</span>
-    </header>
 
-    ${buildProfileCard(game)}
+      <header class="dlg-banner">
+        <h2>${esc(game.title)}</h2>
+        <span class="tag glass">${esc(game.genre)}</span>
+      </header>
+
+      ${buildProfileCard(game)}
+    </div>
 
     <div class="dlg-content">
       ${game.description ? `<p class="desc">${esc(game.description)}</p>` : ''}
@@ -332,6 +336,7 @@ function openDetails(game) {
   prepareShareCard(game);
 
   detailDialog.showModal();
+  detailDialog.focus({ preventScroll: true });
   detailDialog.scrollTop = 0;
 }
 
@@ -427,6 +432,7 @@ async function showShot(index) {
 function openLightbox(index) {
   showShot(index);
   lightbox.showModal();
+  lightbox.focus({ preventScroll: true });
 }
 
 lbPrev.addEventListener('click', () => showShot(lightboxIndex - 1));

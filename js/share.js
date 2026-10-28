@@ -108,6 +108,19 @@ function drawBar(ctx, x, y, w, h, percent) {
   ctx.fill();
 }
 
+// Soft blurred copy of what is already drawn in a box
+// (small copy scaled up = blur, and it works in every browser)
+function drawBlurredBox(ctx, x, y, w, h) {
+  const small = document.createElement('canvas');
+  small.width = Math.max(1, Math.round(w / 18));
+  small.height = Math.max(1, Math.round(h / 18));
+  small.getContext('2d').drawImage(ctx.canvas, x, y, w, h, 0, 0, small.width, small.height);
+
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(small, 0, 0, small.width, small.height, x, y, w, h);
+}
+
 // ---------- The picture card ----------
 async function makeShareCard(game) {
   const person = getPerson(game);
@@ -144,6 +157,7 @@ async function makeShareCard(game) {
   const cardBottom = Math.max(card.y + card.pad * 2 + card.avatar, textBottom + card.pad);
   card.h = cardBottom - card.y;
   const height = Math.max(1080, cardBottom + 300);
+  const heroHeight = cardBottom + 70;   // the wallpaper reaches behind the whole card
 
   // ----- 2) Draw -----
   const canvas = document.createElement('canvas');
@@ -155,12 +169,13 @@ async function makeShareCard(game) {
   ctx.fillRect(0, 0, CARD_WIDTH, height);
 
   // Wallpaper on top, fading into the dark background
-  if (wallpaper) drawCover(ctx, wallpaper, 0, 0, CARD_WIDTH, 640, game.focus);
-  const fade = ctx.createLinearGradient(0, 0, 0, 640);
-  fade.addColorStop(0, 'rgba(8,10,16,0.25)');
+  if (wallpaper) drawCover(ctx, wallpaper, 0, 0, CARD_WIDTH, heroHeight, game.focus);
+  const fade = ctx.createLinearGradient(0, 0, 0, heroHeight);
+  fade.addColorStop(0, 'rgba(8,10,16,0.35)');
+  fade.addColorStop(0.55, 'rgba(8,10,16,0.45)');
   fade.addColorStop(1, 'rgba(11,13,18,1)');
   ctx.fillStyle = fade;
-  ctx.fillRect(0, 0, CARD_WIDTH, 640);
+  ctx.fillRect(0, 0, CARD_WIDTH, heroHeight);
 
   // Title + genre
   ctx.textBaseline = 'alphabetic';
@@ -178,8 +193,15 @@ async function makeShareCard(game) {
   ctx.fillText(game.genre, 96, 186);
 
   // Profile card
+  // Glass: blurred wallpaper inside the card + a light dark tint
+  ctx.save();
   roundedRect(ctx, card.x, card.y, card.w, card.h, 40);
-  ctx.fillStyle = 'rgba(22,26,38,0.85)';
+  ctx.clip();
+  drawBlurredBox(ctx, card.x, card.y, card.w, card.h);
+  ctx.restore();
+
+  roundedRect(ctx, card.x, card.y, card.w, card.h, 40);
+  ctx.fillStyle = 'rgba(14,17,26,0.42)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(255,255,255,0.16)';
   ctx.lineWidth = 2;

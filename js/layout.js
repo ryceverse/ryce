@@ -100,4 +100,5 @@ function renderFooter() {
 document.getElementById('site-header').innerHTML = renderHeader() + renderNavigation();
 document.getElementById('site-footer').innerHTML = renderFooter();
 resolveImages(document.getElementById('site-footer'));
+resolveIcons(document.getElementById('site-footer'));
 initNavigation();

@@ -43,14 +43,83 @@ const ICONS = {
     <circle cx="9.200" cy="11.500" r="1" fill="currentColor"/>
     <circle cx="14.800" cy="11.500" r="1" fill="currentColor"/>`),
 
+  qr: svgIcon(`
+    <rect x="4" y="4" width="6" height="6" rx="1"/>
+    <rect x="14" y="4" width="6" height="6" rx="1"/>
+    <rect x="4" y="14" width="6" height="6" rx="1"/>
+    <path d="M14 14h2v2h-2zM18 14h2v2M16 18h4v2h-4zM14 18v2"/>`),
+
   heart: svgIcon(`
     <path d="M12 20s-7-4.400-7-10a4 4 0 0 1 7-2.600A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/>`),
 };
 
-// Returns the icon for one social entry
+ICONS.saweria = ICONS.heart;
+
+// ---------- Icon colour ----------
+// look.icons.color is the default, look.icons.colors changes single icons,
+// and an entry can have  iconColor: 'original'  itself.
+function iconColorOf(item) {
+  const own = item.iconColor || (look.icons.colors && look.icons.colors[item.id]);
+  return ['white', 'black', 'original'].includes(own) ? own : look.icons.color || 'white';
+}
+
+// Gives back the HTML of an icon. The built-in icon shows right away,
+// resolveIcons() swaps it for your own picture when one is found.
+//   item = { id, name, icon (optional own picture path), iconColor (optional) }
+function renderIcon(item) {
+  const fallback = ICONS[item.id] || `<span class="icon-letter">${esc(String(item.name || '?').charAt(0))}</span>`;
+  const own = item.icon ? ` data-icon-file="${esc(item.icon)}"` : '';
+
+  return `
+    <span class="icon icon-${iconColorOf(item)}"
+          data-icon-id="${esc(item.id || '')}"
+          data-icon-name="${esc(item.name || '')}"${own}>${fallback}</span>`;
+}
+
+// Same as before, used by the footer and the social cards
 function socialIcon(social) {
-  if (social.icon) {
-    return `<img class="social-img" data-asset="${esc(social.icon)}" alt="">`;
+  return renderIcon(social);
+}
+
+// ---------- Find the picture of an icon in look.icons.folder ----------
+// Matches by name, ignoring upper/lower case, spaces and the file format.
+// First an exact name (youtube), then a name that contains it (icon-youtube-2).
+async function findIconFile(names) {
+  const index = await assetIndexReady;
+  if (!index) return '';
+
+  const folder = cleanPath(look.icons.folder).toLowerCase().replace(/\/?$/, '/');
+  const simple = (text) => String(text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  const rank = (file) => {
+    const position = ASSET_EXTENSIONS.indexOf(extensionOf(file));
+    return position === -1 ? 99 : position;
+  };
+
+  const files = [...index.byFullPath.entries()]
+    .filter(([key]) => key.startsWith(folder) && IMAGE_PATTERN.test(key))
+    .map(([key, real]) => ({ real, name: simple(stripExtension(key.split('/').pop())) }))
+    .sort((a, b) => rank(a.real) - rank(b.real));
+
+  const wanted = names.map(simple).filter(Boolean);
+
+  for (const name of wanted) {
+    const exact = files.find((file) => file.name === name);
+    if (exact) return encodeURI(exact.real);
   }
-  return ICONS[social.id] || esc(social.name[0]);
+  for (const name of wanted) {
+    const partial = files.find((file) => file.name.includes(name));
+    if (partial) return encodeURI(partial.real);
+  }
+  return '';
+}
+
+function resolveIcons(container = document) {
+  container.querySelectorAll('[data-icon-id]').forEach(async (holder) => {
+    const own = holder.dataset.iconFile;
+    const url = own
+      ? await resolveAsset(own)
+      : await findIconFile([holder.dataset.iconId, holder.dataset.iconName]);
+
+    if (url) holder.innerHTML = `<img class="social-img" src="${url}" alt="">`;
+  });
 }

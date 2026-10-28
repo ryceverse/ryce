@@ -174,11 +174,9 @@
   color: var(--text);
 }
 
-/* Colored icon files are shown in white */
 .social-img {
   max-width: 56px;
   max-height: 56px;
-  filter: brightness(0) invert(1);
 }
 
 /* ---------- Video: thumbnail + play button ---------- */

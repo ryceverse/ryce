@@ -1,52 +1,161 @@
 /* =====================================================
    SUPPORT & DONATE
+   Equal cards side by side (one column on phones).
+   Every card has the same 3 parts: head, picture tile, button.
    ===================================================== */
 
-/* The card slides in when the section is scrolled into view */
-.support-card {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 1.6rem 2.4rem;
-  padding: 1.6rem 1.8rem;
-  border-radius: var(--r);
-  opacity: 0;
-  translate: 0 24px;
-  transition: opacity 0.7s ease, translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+.support-intro {
+  max-width: 52ch;
+  margin: -0.2rem 0 1.6rem;
+  color: var(--muted);
 }
 
-.section.in .support-card {
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 1.2rem;
+}
+
+/* ---------- One card ---------- */
+.support-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.3rem;
+  border-radius: 22px;
+  opacity: 0;
+  translate: 0 24px;
+  transition:
+    opacity 0.7s calc(var(--n) * 100ms) ease,
+    translate 0.7s calc(var(--n) * 100ms) cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.section.in .support-item {
   opacity: 1;
   translate: none;
 }
 
-.support-text p {
-  max-width: 44ch;
-  margin: 0 0 1.1rem;
-  font-size: 1.05rem;
-  color: #d4d4da;
-}
-
-.support-actions {
+/* ---------- Head: icon badge + title + text ---------- */
+.support-head {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
+  align-items: center;
+  gap: 0.9rem;
 }
 
-/* White button: the one thing on the page that should catch the eye */
+.support-badge {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-line);
+}
+
+.support-head h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.support-head p {
+  margin: 0.1rem 0 0;
+  font-size: 0.88rem;
+}
+
+/* ---------- Picture tile (same height in every card) ---------- */
+.support-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 210px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* Link card: big icon on a soft background (or your own picture) */
+.support-visual.is-link {
+  background: linear-gradient(135deg, #1c1f33, #0e1118);
+  background-size: cover;
+  background-position: center;
+}
+
+.support-visual.is-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.35));
+}
+
+.visual-icon {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.45));
+}
+
+.visual-icon svg,
+.visual-icon img {
+  width: 76px;
+  height: 76px;
+  object-fit: contain;
+}
+
+/* QR card: white tile, the picture keeps its own shape */
+.support-visual.is-qr {
+  padding: 10px;
+  border: 0;
+  background: #fff;
+  cursor: zoom-in;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.support-visual.is-qr img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+.zoom-hint {
+  position: absolute;
+  right: 0.7rem;
+  bottom: 0.7rem;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.support-visual.is-qr:hover .zoom-hint,
+.support-visual.is-qr:focus-visible .zoom-hint {
+  opacity: 1;
+}
+
+/* ---------- Button (same in every card, full width) ---------- */
 .btn-solid {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.55rem;
-  min-height: 48px;
+  width: 100%;
+  min-height: 50px;
   padding: 0 1.5rem;
+  margin-top: auto;
+  border: 0;
   border-radius: 999px;
   background: #fff;
   color: #0b0b0f;
+  font: inherit;
   font-weight: 600;
   text-decoration: none;
+  cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn-solid:hover {
@@ -54,70 +163,16 @@
   box-shadow: 0 8px 24px rgba(255, 255, 255, 0.18);
 }
 
-.btn-solid svg {
+.btn-solid svg,
+.btn-solid img {
   width: 20px;
   height: 20px;
+  object-fit: contain;
 }
 
-/* ---------- QR card ---------- */
-.qr-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.9rem 0.9rem 0.7rem;
-  border-radius: 18px;
-  border: 1px solid var(--glass-line);
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  font: inherit;
-  cursor: zoom-in;
-  transition: transform 0.25s, border-color 0.25s;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.qr-card:hover {
-  transform: translateY(-3px);
-  border-color: #fff;
-}
-
-/* The picture keeps its own shape (a QRIS poster is not square) */
-.qr-frame {
-  display: block;
-  min-width: 120px;
-  height: 170px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.qr-frame img {
-  display: block;
-  height: 100%;
-  width: auto;
-}
-
-.qr-label {
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.qr-card small {
-  color: var(--muted);
-}
-
-/* ---------- Phones: text and buttons first, QR below ---------- */
-@media (max-width: 640px) {
-  .support-card {
-    grid-template-columns: 1fr;
-    padding: 1.3rem;
-  }
-
-  .support-actions .btn-solid {
-    flex: 1 1 100%;
-  }
-
-  .qr-card {
-    justify-self: center;
-  }
+.support-badge svg,
+.support-badge img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }

@@ -1,0 +1,87 @@
+/* =====================================================
+   ICONS (colour comes from look.icons in data-look.js)
+   ===================================================== */
+.icon {
+  display: inline-grid;
+  place-items: center;
+  line-height: 0;
+}
+
+.icon-white {
+  color: #fff;
+}
+
+.icon-white img {
+  filter: brightness(0) invert(1);
+}
+
+.icon-black {
+  color: #000;
+}
+
+.icon-black img {
+  filter: brightness(0);
+}
+
+/* Original colours: the picture stays as it is (built-in icons stay white) */
+.icon-original {
+  color: #fff;
+}
+
+.icon-original img {
+  filter: none;
+}
+
+/* Letter used when there is no icon at all */
+.icon-letter {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* =====================================================
+   SOCIAL CARDS ("Find Me Online"): picture + dark layer + icon
+   ===================================================== */
+.thumb {
+  position: relative;
+  display: block;
+  overflow: hidden;
+}
+
+/* The picture (zooms slowly on hover) */
+.thumb-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1a1d2a, #0e1118);
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.scard:hover .thumb-bg {
+  transform: scale(1.08);
+}
+
+/* Dark layer, so the icon is always easy to see on any picture */
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.5));
+}
+
+.thumb-icon {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+}
+
+.thumb .icon svg,
+.thumb .icon img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}

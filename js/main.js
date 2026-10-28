@@ -33,14 +33,12 @@ function buildStage() {
 
 // ---------- Section 2: social media cards ----------
 function buildSocialCard(social, index) {
-  const hue = (index * 60 + 350) % 360;
-  const fallback = `linear-gradient(135deg, hsl(${hue} 30% 22%), #101014)`;
-
   return `
     <a class="scard glass" style="--n:${index}" href="${esc(social.url)}"
        target="_blank" rel="noopener noreferrer" draggable="false">
-      <div class="thumb" id="thumb-${index}" style="background:${fallback}">
-        ${social.thumb ? '' : socialIcon(social)}
+      <div class="thumb">
+        <span class="thumb-bg" id="thumb-${index}"></span>
+        <span class="thumb-icon">${socialIcon(social)}</span>
       </div>
       <div class="meta">
         <span class="cat">${esc(social.category)}</span>
@@ -59,36 +57,51 @@ function buildConnect() {
 }
 
 // ---------- Section 3: Support & Donate ----------
-function buildSupportButton(button) {
-  const icon = ICONS[button.icon] || '';
+// Every card has the same parts: head, picture tile, button
+function buildSupportCard(card, index) {
+  const isQr = card.type === 'qr';
+  const button = card.button || {};
+
+  const head = `
+    <div class="support-head">
+      <span class="support-badge">${renderIcon({ id: card.icon, name: card.title, iconColor: card.iconColor })}</span>
+      <div>
+        <h3>${esc(card.title)}</h3>
+        ${card.text ? `<p>${esc(card.text)}</p>` : ''}
+      </div>
+    </div>`;
+
+  const visual = isQr
+    ? `
+      <button class="support-visual is-qr" data-qr="${index}" aria-label="Enlarge ${esc(card.title)} code">
+        <img data-asset="${esc(card.image)}" alt="${esc(card.title)} code">
+        ${card.hint ? `<span class="zoom-hint">${esc(card.hint)}</span>` : ''}
+      </button>`
+    : `
+      <div class="support-visual is-link" id="support-bg-${index}">
+        <span class="visual-icon">${renderIcon({ id: card.icon, name: card.title, iconColor: card.iconColor })}</span>
+      </div>`;
+
+  const action = isQr
+    ? `<button class="btn-solid" data-qr="${index}">${esc(button.label || 'View')}</button>`
+    : `<a class="btn-solid" href="${esc(button.url)}" target="_blank" rel="noopener noreferrer">${esc(button.label || 'Open')}</a>`;
+
   return `
-    <a class="btn-solid" href="${esc(button.url)}" target="_blank" rel="noopener noreferrer">
-      ${icon}${esc(button.label)}
-    </a>`;
+    <article class="support-item glass" style="--n:${index}">
+      ${head}
+      ${visual}
+      ${action}
+    </article>`;
 }
 
 function buildSupport() {
   if (!support.visible) return '';
 
-  const buttons = (support.buttons || []).map(buildSupportButton).join('');
-
-  const qr = support.qr && support.qr.image ? `
-    <button class="qr-card" id="qr-open" aria-label="Enlarge ${esc(support.qr.label)} code">
-      <span class="qr-frame"><img data-asset="${esc(support.qr.image)}" alt="${esc(support.qr.label)} code"></span>
-      <span class="qr-label">${esc(support.qr.label)}</span>
-      <small>${esc(support.qr.hint)}</small>
-    </button>` : '';
-
   return `
     <section id="support" class="section">
       <h2>${esc(support.title)}</h2>
-      <div class="support-card glass">
-        <div class="support-text">
-          ${support.text ? `<p>${esc(support.text)}</p>` : ''}
-          <div class="support-actions">${buttons}</div>
-        </div>
-        ${qr}
-      </div>
+      ${support.text ? `<p class="support-intro">${esc(support.text)}</p>` : ''}
+      <div class="support-grid">${(support.cards || []).map(buildSupportCard).join('')}</div>
     </section>`;
 }
 
@@ -105,9 +118,19 @@ const tiles = [...shelf.querySelectorAll('.tile')];
 // Pictures are found (and extension / case fixed) by assets.js
 visibleGames.forEach((game, index) => paintImage(tiles[index], game.cover || game.background, 'center top'));
 visibleSocials.forEach((social, index) => {
-  if (social.thumb) paintImage(document.getElementById(`thumb-${index}`), social.thumb);
+  const picture = social.thumb || look.socialBackgrounds[social.id] || look.socialBackgrounds.default;
+  if (picture) paintImage(document.getElementById(`thumb-${index}`), picture);
 });
+
+// Support cards: optional picture behind the icon tile
+if (support.visible) {
+  (support.cards || []).forEach((card, index) => {
+    if (card.type !== 'qr' && card.background) paintImage(document.getElementById(`support-bg-${index}`), card.background);
+  });
+}
+
 resolveImages(document);
+resolveIcons(document);
 
 // ---------- Drag to slide with the mouse (touch uses normal swipe) ----------
 function makeSlider(element) {
@@ -265,10 +288,16 @@ if (sharedIndex >= 0) {
 }
 
 // ---------- QR code: tap to enlarge (with a save button) ----------
-const qrButton = document.getElementById('qr-open');
+const supportSection = document.getElementById('support');
 
-if (qrButton) {
-  qrButton.addEventListener('click', () => openPictures([support.qr.image], 0, { save: true }));
+if (supportSection) {
+  supportSection.addEventListener('click', (event) => {
+    const trigger = event.target.closest('[data-qr]');
+    if (!trigger) return;
+
+    const card = support.cards[Number(trigger.dataset.qr)];
+    openPictures([card.image], 0, { save: true });
+  });
 }
 
 // ---------- Social cards and the support card slide in when scrolled into view ----------

@@ -32,3 +32,8 @@ Tombol share membuat gambar kartu profil + link (`.../#genshin` langsung membuka
 Section baru di `js/data-support.js`: `visible`, `title`, `text`, `buttons` (bisa lebih dari satu), dan `qr` (gambar QR, format apa saja: png, jpg, webp, svg).
 Gambar QR bisa diketuk untuk diperbesar dan ada tombol "Save image".
 Discord: tambahkan satu entri di `js/data-socials.js` (lihat contoh di chat), kategori `Community`.
+
+## Icon, background sosmed, Support (v9)
+- `js/data-look.js`: warna icon (`'white'`, `'black'`, `'original'`), folder icon (`assets/Icon/`), dan gambar background tiap kartu sosmed (`assets/Social/`, contoh sementara, ganti kapan saja).
+- Icon dicari otomatis dari folder `assets/Icon/` lewat namanya (youtube, tiktok, instagram, facebook, hoyolab, discord, saweria, qr). Tidak ketemu = icon bawaan.
+- `js/data-support.js`: kartu Support & Donate (jumlah kartu bebas, ukuran selalu sama).

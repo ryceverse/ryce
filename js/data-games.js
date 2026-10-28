@@ -133,8 +133,7 @@ const games = [
       stats: [
         { label: 'ID', value: '97255743 (2504)', copy: '97255743' },
         { label: 'Rank', value: 'Mythical Immortal' },
-        { label: 'Point', value: '1518' },
-        { label: 'Stats', progress: 85, value:'85 point' },
+        { label: 'Point', progress: 85, value:'1518' },
         
       ],
     },
@@ -208,8 +207,7 @@ const games = [
       joined: '2010',
       stats: [
         { label: 'Rank', value: 'COL Class 2' },
-        { label: 'Exprolasi', progress: 80 },  
-        { label: 'Stats', progress: 80 },
+        { label: 'Stats', progress: 90 },
       ],
     },
     description: '',

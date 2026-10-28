@@ -26,6 +26,7 @@ const look = {
     colors: {  
       hoyolab: 'original',
       discord: 'original',
+      discord: 'tiktok',
             },
   },
 

@@ -23,7 +23,10 @@ const look = {
     // Different colour for single icons, for example:
     //   { youtube: 'original', discord: 'black' }
     // (a social entry can also have  iconColor: 'original'  in data-socials.js)
-    colors: {},
+    colors: {  
+      hoyolab: 'original',
+      discord: 'original',
+            },
   },
 
   // ---------- Background picture of every social card ("Find Me Online") ----------

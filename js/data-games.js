@@ -18,8 +18,13 @@
 //   bio       = short text under the name
 //   joined    = year shown as "Bergabung"
 //   stats     = rows under the bio:
-//                 { label: 'UID', value: '123', copy: true }   -> copy icon
-//                 { label: 'Skill', progress: 90 }              -> bar (0 - 100)
+//                 { label: 'UID', value: '123', copy: true }        -> copy icon (copies the value)
+//                 { label: 'ID', value: '123 (45)', copy: '123' }   -> copy icon (copies only '123')
+//                 { label: 'Skill', progress: 90 }                  -> bar (0 - 100)
+//                 { label: 'Stats', progress: 85, value: '85 point' }
+//                                                                   -> Stats  [bar]  85 point
+//                 { label: 'Stats', progress: 85, value: '85 point', valueSide: 'left' }
+//                                                                   -> Stats  85 point  [bar]
 //
 // description = text under the profile card
 // gallery     = pictures in the popup (click = big preview)
@@ -126,7 +131,7 @@ const games = [
       bio: '',
       joined: '2016',
       stats: [
-        { label: 'ID', value: '97255743 (2504)', copy: true },
+        { label: 'ID', value: '97255743 (2504)', copy: '97255743' },
         { label: 'Rank', value: 'Mythical Immortal' },
         { label: 'Point', value: '1518' },
         { label: 'Stats', progress: 85, value:'85 point' },

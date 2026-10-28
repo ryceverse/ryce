@@ -37,6 +37,14 @@ const ICONS = {
   hoyolab: svgIcon(`
     <circle cx="12" cy="12" r="9"/>
     <path d="M9 8v8M15 8v8M9 12h6"/>`),
+
+  discord: svgIcon(`
+    <path d="M7 6.8c1.6-.8 3.2-1.2 5-1.2s3.4.4 5 1.2c1.3 2.1 2 4.3 2.4 7-1.4 1.2-3 2-4.8 2.5l-.8-1.5c-1 .2-2 .2-3.6 0l-.8 1.5c-1.8-.5-3.4-1.3-4.8-2.5C5 11.100 5.700 8.900 7 6.800z"/>
+    <circle cx="9.200" cy="11.500" r="1" fill="currentColor"/>
+    <circle cx="14.800" cy="11.500" r="1" fill="currentColor"/>`),
+
+  heart: svgIcon(`
+    <path d="M12 20s-7-4.400-7-10a4 4 0 0 1 7-2.600A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/>`),
 };
 
 // Returns the icon for one social entry

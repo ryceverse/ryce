@@ -20,12 +20,12 @@ const ASSET_SOURCE = {
   branch: 'main',
 };
 
-const ASSET_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png', 'avif', 'gif'];
+const ASSET_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png', 'svg', 'avif', 'gif'];
 const ASSET_FOLDERS = ['assets/', 'images/'];
 const ASSET_CACHE_KEY = 'ryce-asset-files-v1';
 const ASSET_CACHE_MINUTES = 10;
 const ASSET_API_TIMEOUT = 4000;
-const IMAGE_PATTERN = /\.(webp|jpe?g|png|avif|gif)$/i;
+const IMAGE_PATTERN = /\.(webp|jpe?g|png|svg|avif|gif)$/i;
 
 // ---------- Small helpers for paths ----------
 function cleanPath(path) {

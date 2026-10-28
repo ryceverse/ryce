@@ -15,6 +15,7 @@ document.body.insertAdjacentHTML('beforeend', `
     <img id="lb-img" alt="">
     <button class="lb-btn lb-next" id="lb-next" aria-label="Next picture">›</button>
     <div class="lb-count" id="lb-count"></div>
+    <a class="lb-save" id="lb-save" download hidden>Save image</a>
   </dialog>
 `);
 
@@ -25,6 +26,7 @@ const lbImg = document.getElementById('lb-img');
 const lbCount = document.getElementById('lb-count');
 const lbPrev = document.getElementById('lb-prev');
 const lbNext = document.getElementById('lb-next');
+const lbSave = document.getElementById('lb-save');
 
 // Icons for the copy button
 const COPY_ICON = `
@@ -73,6 +75,8 @@ const CLOSE_ICON = `
 
 let currentGame = null;
 let lightboxIndex = 0;
+let lightboxImages = [];      // the pictures the big viewer is showing
+let lightboxSave = false;     // show a "Save image" button (used for the QR code)
 
 // ---------- Small builders for each part of the popup ----------
 // ---------- Profile data of one game ----------
@@ -111,23 +115,35 @@ function copyButton(value, label) {
             aria-label="Copy ${esc(label)}" title="Copy">${COPY_ICON}</button>`;
 }
 
+// One row of the profile card.
+//   value                    -> text
+//   progress                 -> bar (0 - 100)
+//   value + progress         -> bar first, text after it ("Stats  [bar]  85 point")
+//                               valueSide: 'left' puts the text before the bar
+//   copy: true               -> copy icon, copies the value
+//   copy: '97255743'         -> copy icon, copies only this text
 function buildStat(stat) {
   const parts = [];
 
-  if (stat.value) {
-    parts.push(`<span>${esc(stat.value)}</span>`);
-  }
+  const valueText = stat.value ? `<span class="stat-value">${esc(stat.value)}</span>` : '';
 
-  if (stat.progress != null) {
+  const bar = stat.progress != null ? (() => {
     const percent = Math.max(0, Math.min(100, Number(stat.progress) || 0));
-    parts.push(`
+    return `
       <span class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}">
         <span class="bar-fill" style="--p:${percent}"></span>
-      </span>`);
+      </span>`;
+  })() : '';
+
+  if (bar) {
+    parts.push(stat.valueSide === 'left' ? valueText + bar : bar + valueText);
+  } else {
+    parts.push(valueText);
   }
 
-  if (stat.copy && stat.value) {
-    parts.push(copyButton(stat.value, stat.label));
+  const textToCopy = typeof stat.copy === 'string' ? stat.copy : stat.value;
+  if (stat.copy && textToCopy) {
+    parts.push(copyButton(textToCopy, stat.label));
   }
 
   return `
@@ -407,7 +423,7 @@ detailDialog.addEventListener('close', () => {
 
 // ---------- Lightbox (big picture, blurred page behind) ----------
 async function showShot(index) {
-  const pictures = currentGame.gallery;
+  const pictures = lightboxImages;
   lightboxIndex = (index + pictures.length) % pictures.length;
   const wanted = lightboxIndex;
 
@@ -416,6 +432,7 @@ async function showShot(index) {
   const hasMany = pictures.length > 1;
   lbPrev.hidden = !hasMany;
   lbNext.hidden = !hasMany;
+  lbCount.hidden = !hasMany;
 
   // Find the real file (wrong extension or upper/lower case is fixed here)
   const url = await resolveAsset(pictures[wanted]);
@@ -423,16 +440,31 @@ async function showShot(index) {
 
   lbImg.src = url || pictures[wanted];
 
+  // Save button (only for the QR code)
+  lbSave.hidden = !lightboxSave;
+  if (lightboxSave) {
+    lbSave.href = lbImg.src;
+    lbSave.download = decodeURI(String(pictures[wanted])).split('/').pop();
+  }
+
   // Restart the small fade animation on every picture
   lbImg.classList.remove('swap');
   void lbImg.offsetWidth;
   lbImg.classList.add('swap');
 }
 
-function openLightbox(index) {
+// Opens the big viewer for any list of pictures
+function openPictures(images, index = 0, { save = false } = {}) {
+  lightboxImages = images;
+  lightboxSave = save;
   showShot(index);
   lightbox.showModal();
   lightbox.focus({ preventScroll: true });
+}
+
+// The gallery of the game popup
+function openLightbox(index) {
+  openPictures(currentGame.gallery, index);
 }
 
 lbPrev.addEventListener('click', () => showShot(lightboxIndex - 1));

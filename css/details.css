@@ -111,7 +111,7 @@
 
 .lightbox img {
   max-width: min(92vw, 1400px);
-  max-height: 84vh;
+  max-height: 80vh;
   border-radius: 18px;
   box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
 }
@@ -526,6 +526,11 @@
   animation: barGrow 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 0.25s backwards;
 }
 
+/* Text after the bar (e.g. "85 point") stays on one line */
+.bar + .stat-value {
+  white-space: nowrap;
+}
+
 /* ---------- Message at the bottom ---------- */
 @keyframes toastIn {
   from {
@@ -597,4 +602,32 @@
   .joined small {
     display: inline;
   }
+}
+
+/* ---------- Save button in the big viewer (QR code) ---------- */
+.lb-save {
+  position: absolute;
+  bottom: 1.2rem;
+  left: 50%;
+  translate: -50% 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--glass-line);
+  background: rgba(20, 24, 34, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.lb-save:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.lb-save[hidden] {
+  display: none;
 }

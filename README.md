@@ -27,3 +27,8 @@ Ukuran wallpaper yang disarankan: 1920 x 1080 (16:9), objek utama di tengah, for
 Tiap game di `js/data-games.js` punya blok `profile`: `avatar`, `name`, `bio`, `joined`, `stats` (baris seperti UID / AR; `copy: true` = icon salin, `progress: 90` = bar 0-100).
 Kosongkan nilai untuk menyembunyikan baris itu. Format `info` yang lama tetap terbaca.
 Tombol share membuat gambar kartu profil + link (`.../#genshin` langsung membuka popup game itu). Teks popup bisa diedit di `LABELS` bagian atas `js/details.js`.
+
+## Support & Donate (v8)
+Section baru di `js/data-support.js`: `visible`, `title`, `text`, `buttons` (bisa lebih dari satu), dan `qr` (gambar QR, format apa saja: png, jpg, webp, svg).
+Gambar QR bisa diketuk untuk diperbesar dan ada tombol "Save image".
+Discord: tambahkan satu entri di `js/data-socials.js` (lihat contoh di chat), kategori `Community`.

@@ -58,8 +58,42 @@ function buildConnect() {
     </section>`;
 }
 
+// ---------- Section 3: Support & Donate ----------
+function buildSupportButton(button) {
+  const icon = ICONS[button.icon] || '';
+  return `
+    <a class="btn-solid" href="${esc(button.url)}" target="_blank" rel="noopener noreferrer">
+      ${icon}${esc(button.label)}
+    </a>`;
+}
+
+function buildSupport() {
+  if (!support.visible) return '';
+
+  const buttons = (support.buttons || []).map(buildSupportButton).join('');
+
+  const qr = support.qr && support.qr.image ? `
+    <button class="qr-card" id="qr-open" aria-label="Enlarge ${esc(support.qr.label)} code">
+      <span class="qr-frame"><img data-asset="${esc(support.qr.image)}" alt="${esc(support.qr.label)} code"></span>
+      <span class="qr-label">${esc(support.qr.label)}</span>
+      <small>${esc(support.qr.hint)}</small>
+    </button>` : '';
+
+  return `
+    <section id="support" class="section">
+      <h2>${esc(support.title)}</h2>
+      <div class="support-card glass">
+        <div class="support-text">
+          ${support.text ? `<p>${esc(support.text)}</p>` : ''}
+          <div class="support-actions">${buttons}</div>
+        </div>
+        ${qr}
+      </div>
+    </section>`;
+}
+
 // ---------- Put the sections on the page ----------
-const SECTIONS = [buildStage, buildConnect];
+const SECTIONS = [buildStage, buildConnect, buildSupport];
 document.getElementById('top').innerHTML = SECTIONS.map((build) => build()).join('');
 
 const bg = document.getElementById('bg');
@@ -230,17 +264,27 @@ if (sharedIndex >= 0) {
   openDetails(visibleGames[sharedIndex]);
 }
 
-// ---------- Social cards slide in when scrolled into view ----------
-const connectSection = document.getElementById('connect');
+// ---------- QR code: tap to enlarge (with a save button) ----------
+const qrButton = document.getElementById('qr-open');
+
+if (qrButton) {
+  qrButton.addEventListener('click', () => openPictures([support.qr.image], 0, { save: true }));
+}
+
+// ---------- Social cards and the support card slide in when scrolled into view ----------
+const revealSections = document.querySelectorAll('#connect, #support');
 
 if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver(([entry]) => {
-    if (entry.isIntersecting) {
-      connectSection.classList.add('in');
-      observer.disconnect();
-    }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        observer.unobserve(entry.target);
+      }
+    });
   }, { threshold: 0.2 });
-  observer.observe(connectSection);
+
+  revealSections.forEach((section) => observer.observe(section));
 } else {
-  connectSection.classList.add('in');
+  revealSections.forEach((section) => section.classList.add('in'));
 }

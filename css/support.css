@@ -1,0 +1,123 @@
+/* =====================================================
+   SUPPORT & DONATE
+   ===================================================== */
+
+/* The card slides in when the section is scrolled into view */
+.support-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1.6rem 2.4rem;
+  padding: 1.6rem 1.8rem;
+  border-radius: var(--r);
+  opacity: 0;
+  translate: 0 24px;
+  transition: opacity 0.7s ease, translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.section.in .support-card {
+  opacity: 1;
+  translate: none;
+}
+
+.support-text p {
+  max-width: 44ch;
+  margin: 0 0 1.1rem;
+  font-size: 1.05rem;
+  color: #d4d4da;
+}
+
+.support-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+/* White button: the one thing on the page that should catch the eye */
+.btn-solid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  min-height: 48px;
+  padding: 0 1.5rem;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b0b0f;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-solid:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.18);
+}
+
+.btn-solid svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---------- QR card ---------- */
+.qr-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.9rem 0.9rem 0.7rem;
+  border-radius: 18px;
+  border: 1px solid var(--glass-line);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text);
+  font: inherit;
+  cursor: zoom-in;
+  transition: transform 0.25s, border-color 0.25s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.qr-card:hover {
+  transform: translateY(-3px);
+  border-color: #fff;
+}
+
+/* The picture keeps its own shape (a QRIS poster is not square) */
+.qr-frame {
+  display: block;
+  min-width: 120px;
+  height: 170px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.qr-frame img {
+  display: block;
+  height: 100%;
+  width: auto;
+}
+
+.qr-label {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.qr-card small {
+  color: var(--muted);
+}
+
+/* ---------- Phones: text and buttons first, QR below ---------- */
+@media (max-width: 640px) {
+  .support-card {
+    grid-template-columns: 1fr;
+    padding: 1.3rem;
+  }
+
+  .support-actions .btn-solid {
+    flex: 1 1 100%;
+  }
+
+  .qr-card {
+    justify-self: center;
+  }
+}

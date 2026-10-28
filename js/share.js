@@ -259,25 +259,41 @@ async function makeShareCard(game) {
     ctx.textAlign = 'left';
   }
 
-  // Stats: label, value, progress bar
+  // Stats: label, value, progress bar (same order as in the popup)
   stats.forEach((stat, index) => {
     const y = statsTop + index * 62;
-    let valueX = textX + 190;
+    const startX = textX + 190;
+    const endX = card.x + card.w - card.pad;
 
     ctx.font = `500 32px ${CARD_FONT}`;
     ctx.fillStyle = '#8f95a6';
     ctx.fillText(stat.label, textX, y);
 
-    if (stat.value) {
-      ctx.font = `700 34px ${CARD_FONT}`;
+    const text = stat.value ? String(stat.value) : '';
+    ctx.font = `700 34px ${CARD_FONT}`;
+    const textWidth = text ? ctx.measureText(text).width : 0;
+
+    // Only text
+    if (stat.progress == null) {
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(String(stat.value), valueX, y);
-      valueX += ctx.measureText(String(stat.value)).width + 24;
+      ctx.fillText(text, startX, y);
+      return;
     }
 
-    if (stat.progress != null) {
-      const barWidth = Math.min(320, card.x + card.w - card.pad - valueX);
-      drawBar(ctx, valueX, y - 22, barWidth, 18, Number(stat.progress) || 0);
+    const percent = Number(stat.progress) || 0;
+
+    if (stat.valueSide === 'left') {
+      // text, then bar
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(text, startX, y);
+      const barX = startX + (text ? textWidth + 24 : 0);
+      drawBar(ctx, barX, y - 22, Math.min(320, endX - barX), 18, percent);
+    } else {
+      // bar, then text
+      const barWidth = Math.min(300, endX - startX - (text ? textWidth + 24 : 0));
+      drawBar(ctx, startX, y - 22, barWidth, 18, percent);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(text, startX + barWidth + 24, y);
     }
   });
 

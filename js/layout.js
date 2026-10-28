@@ -23,6 +23,7 @@ const FOOTER_COPYRIGHT = '© {year} Ryceverse. All Rights Reserved.';
 const NAV_LINKS = [
   ['Games', '#games'],
   ['Connect', '#connect'],
+  ['Support', '#support'],
 ];
 
 // ---------- Header ----------

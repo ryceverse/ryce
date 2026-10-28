@@ -245,11 +245,20 @@
 }
 
 /* =====================================================
-   DETAIL POPUP LAYOUT (v6)
-   banner -> profile card -> description -> video -> gallery
+   DETAIL POPUP LAYOUT (v7)
+   hero (wallpaper + title + glass profile card)
+   -> description -> video -> gallery
    ===================================================== */
 .dlg {
   background: #0e1118;
+}
+
+/* No white ring when the popup opens (the popup itself takes the focus) */
+.dlg:focus,
+.dlg:focus-visible,
+.lightbox:focus,
+.lightbox:focus-visible {
+  outline: none;
 }
 
 .dlg-body {
@@ -258,6 +267,15 @@
 
 .dlg-content {
   padding: 0.4rem 1.4rem 1.6rem;
+}
+
+/* No grey flash when tapping on a phone */
+.round-btn,
+.copy-btn,
+.shot,
+.video-preview,
+.lb-btn {
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* ---------- Share + close buttons (stay visible while scrolling) ---------- */
@@ -283,9 +301,9 @@
   padding: 0;
   border-radius: 50%;
   border: 1px solid var(--glass-line);
-  background: rgba(20, 24, 34, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(20, 24, 34, 0.6);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   color: #fff;
   cursor: pointer;
   transition: background 0.2s, transform 0.2s;
@@ -296,16 +314,30 @@
   transform: scale(1.06);
 }
 
+.round-btn:active {
+  transform: scale(0.96);
+}
+
+/* Ring only for keyboard users */
+.round-btn:focus {
+  outline: none;
+}
+
+.round-btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 2px;
+}
+
 .round-btn svg {
   width: 20px;
   height: 20px;
 }
 
-/* ---------- Banner: wallpaper of the game ---------- */
-.dlg-banner {
+/* ---------- Hero: the wallpaper sits behind the title AND the profile card ---------- */
+.dlg-hero {
   position: relative;
   isolation: isolate;
-  padding: 1.4rem 7rem 6.5rem 1.4rem;
+  padding-bottom: 1.8rem;
 }
 
 .banner-art {
@@ -313,16 +345,26 @@
   inset: 0;
   z-index: -2;
   background-size: cover;
-  background-position: center;
+  background-position: center top;
 }
 
-/* Darkens the wallpaper and fades it into the popup */
-.dlg-banner::after {
+/* Darkens the wallpaper a little and fades it into the popup at the bottom */
+.dlg-hero::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(180deg, rgba(8, 10, 16, 0.2) 0%, rgba(14, 17, 24, 0.6) 55%, #0e1118 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(8, 10, 16, 0.35) 0%,
+    rgba(8, 10, 16, 0.45) 55%,
+    rgba(14, 17, 24, 0.9) 88%,
+    #0e1118 100%
+  );
+}
+
+.dlg-banner {
+  padding: 1.4rem 7rem 1.3rem 1.4rem;
 }
 
 .dlg-banner h2 {
@@ -331,29 +373,35 @@
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
 }
 
-/* ---------- Profile card ---------- */
+/* ---------- Profile card (glass: the wallpaper shows through, blurred) ---------- */
 .profile-card {
   position: relative;
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-areas:
+    "avatar head"
+    "avatar stats";
+  column-gap: 1.4rem;
+  row-gap: 0.8rem;
   align-items: center;
-  gap: 1.4rem;
-  margin: -4.8rem 1.4rem 1.4rem;
+  margin: 0 1.4rem;
   padding: 1.4rem 1.6rem;
   border-radius: 22px;
-  background: rgba(20, 25, 36, 0.78);
-  border: 1px solid var(--glass-line);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(14, 17, 26, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
 .avatar-ring {
+  grid-area: avatar;
   position: relative;
   width: clamp(84px, 22vw, 128px);
   aspect-ratio: 1;
   border-radius: 50%;
   border: 4px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   background: #1a1d26;
 }
@@ -376,9 +424,11 @@
   color: var(--muted);
 }
 
-.profile-main {
+.profile-head {
+  grid-area: head;
   min-width: 0;
   padding-right: 4.5rem;
+  align-self: end;
 }
 
 .profile-name {
@@ -392,7 +442,7 @@
 .profile-bio {
   margin: 0.15rem 0 0;
   font-size: 0.9rem;
-  color: #cfd3dc;
+  color: #d6dae3;
 }
 
 .joined {
@@ -412,14 +462,16 @@
   font-size: 1.05rem;
 }
 
-/* ---------- Stats: labels share one column, so values line up ---------- */
+/* ---------- Stats: labels share one column, values start at the same place ---------- */
 .stats {
+  grid-area: stats;
+  align-self: start;
   display: grid;
-  grid-template-columns: max-content 1fr;
+  grid-template-columns: max-content minmax(0, 1fr);
   column-gap: 1.6rem;
-  row-gap: 0.5rem;
+  row-gap: 0.55rem;
   align-items: center;
-  margin: 0.9rem 0 0;
+  margin: 0;
 }
 
 .stat {
@@ -427,19 +479,27 @@
 }
 
 .stats dt {
-  color: var(--muted);
+  color: #aab0bd;
   font-size: 0.95rem;
 }
 
+/* Values may wrap, so nothing can ever stick out of the card */
 .stats dd {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.25rem 0.6rem;
+  min-width: 0;
   margin: 0;
   font-weight: 700;
+  overflow-wrap: anywhere;
 }
 
-/* ---------- Skill progress bar ---------- */
+.copy-btn {
+  flex: none;
+}
+
+/* ---------- Progress bar: fills the free space, never wider than 220px ---------- */
 @keyframes barGrow {
   from {
     width: 0;
@@ -448,10 +508,12 @@
 
 .bar {
   display: block;
-  width: min(100%, 220px);
+  flex: 1 1 110px;
+  min-width: 0;
+  max-width: 220px;
   height: 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.16);
   overflow: hidden;
 }
 
@@ -487,29 +549,52 @@
   animation: toastIn 0.3s ease;
 }
 
-/* ---------- Small phones ---------- */
+/* ---------- Small phones ----------
+   Avatar + name on top, the stats get the FULL width of the card below them,
+   then the join year. So nothing is squeezed next to the avatar anymore. */
 @media (max-width: 520px) {
   .dlg-content {
     padding-inline: 1rem;
   }
 
+  .dlg-banner {
+    padding: 1.2rem 6.5rem 1.1rem 1rem;
+  }
+
   .profile-card {
-    gap: 1rem;
+    grid-template-areas:
+      "avatar head"
+      "stats stats"
+      "joined joined";
+    column-gap: 1rem;
+    row-gap: 0.9rem;
     margin-inline: 1rem;
     padding: 1.1rem;
   }
 
-  .profile-main {
+  .profile-head {
+    align-self: center;
     padding-right: 0;
   }
 
-  /* The join year moves under the card content instead of the corner */
+  .stats {
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  /* The join year moves from the corner to its own line */
   .joined {
     position: static;
-    grid-column: 1 / -1;
+    grid-area: joined;
     display: flex;
     align-items: baseline;
     gap: 0.5rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     text-align: left;
+  }
+
+  .joined small {
+    display: inline;
   }
 }

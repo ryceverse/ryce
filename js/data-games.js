@@ -46,7 +46,7 @@ const games = [
       avatar: './assets/Genshin Impact/Profile/Profile.png',
       name: 'Ryce',
       copyName: false,
-      bio: 'Hanya Pengembara Biasa',
+      bio: 'Hanya Pengembara yang lewat',
       joined: '2016',
       stats: [
         { label: 'UID', value: '820476661', copy: true },
@@ -87,7 +87,7 @@ const games = [
       avatar: './assets/Honkai Star Rail/Profile/Profile.png',
       name: 'Ryce',
       copyName: false,
-      bio: '',
+      bio: 'Rehat Sejenak',
       joined: '2018',
       stats: [
         { label: 'UID', value: '808783651', copy: true },
@@ -128,7 +128,7 @@ const games = [
       avatar: './assets/Mobile Legends/Profile/Profile.png',
       name: 'Ryce',
       copyName: false,
-      bio: '',
+      bio: 'Tournament MVP • Midlaner • 1st Place — MLBB Banjarmasin',
       joined: '2016',
       stats: [
         { label: 'ID', value: '97255743 (2504)', copy: '97255743' },
@@ -168,7 +168,7 @@ const games = [
       avatar: './assets/Clash Of Clans/Profile/Profile.png',
       name: 'Ryce',
       copyName: false,
-      bio: '',
+      bio: 'Hanya Pemain Biasa',
       joined: '2016',
       stats: [
         { label: 'Player Tag', value: '#C89RRY8', copy: true },       
@@ -203,7 +203,7 @@ const games = [
       avatar: './assets/Lost Saga/Profile/Profile.png',
       name: 'LexusDarkTao',
       copyName: true,
-      bio: '',
+      bio: 'Selamat Istirahat COL!',
       joined: '2010',
       stats: [
         { label: 'Rank', value: 'COL Class 2' },
@@ -242,7 +242,7 @@ const games = [
       avatar: './assets/Chess/Profile/Profile.png',
       name: 'fikrispt',
       copyName: true,
-      bio: '',
+      bio: 'Mencoba Berfikir',
       joined: '2023',
       stats: [
         { label: 'Rating', value: '1500' },

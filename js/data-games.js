@@ -126,7 +126,11 @@ const games = [
       bio: '',
       joined: '2016',
       stats: [
-        { label: 'ID', value: '97255743 (2504)', copy: true },
+        { label: 'ID', value: '97255743', copy: true },
+        { label: 'Server', value: '(2504)' },
+        { label: 'Rank', value: 'Mythical Immortal - 1518 Point' },
+        { label: 'Stats', progress: 85 },
+        
       ],
     },
     description: '',
@@ -165,7 +169,7 @@ const games = [
       stats: [
         { label: 'Player Tag', value: '#C89RRY8', copy: true },       
         { label: 'Town Hall', value: '17' },
-        { label: 'Exprolasi', progress: 70 },
+        { label: 'Stats', progress: 80 },
       ],
     },
     description: '',
@@ -200,6 +204,7 @@ const games = [
       stats: [
         { label: 'Rank', value: 'COL Class 2' },
         { label: 'Exprolasi', progress: 80 },  
+        { label: 'Stats', progress: 80 },
       ],
     },
     description: '',
@@ -238,7 +243,7 @@ const games = [
       joined: '2023',
       stats: [
         { label: 'Rating', value: '1500' },
-        { label: 'Skill', progress: 50 },  
+        { label: 'Skill', progress: 60 },  
       ],
     },
     description: '',

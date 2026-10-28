@@ -126,10 +126,10 @@ const games = [
       bio: '',
       joined: '2016',
       stats: [
-        { label: 'ID', value: '97255743', copy: true },
-        { label: 'Server', value: '(2504)' },
-        { label: 'Rank', value: 'Mythical Immortal - 1518 Point' },
-        { label: 'Stats', progress: 85 },
+        { label: 'ID', value: '97255743 (2504)', copy: true },
+        { label: 'Rank', value: 'Mythical Immortal' },
+        { label: 'Point', value: '1518' },
+        { label: 'Stats', progress: 85, value:'85 point' },
         
       ],
     },

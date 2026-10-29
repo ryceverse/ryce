@@ -183,9 +183,10 @@ const games = [
       size: 128,
       name: 'Ryce',
       copyName: false,
-      bio: 'Tournament MVP Midlaner • 1st Place — MLBB Banjarmasin',
+      bio: 'Midlaner • 1st Place — MLBB Banjarmasin (2023)',
       joined: '2016',
-      badges: [{ file: './assets/Icon/TopGlobal.png', size: 20, title: 'Top Global Selena' }],
+      badges: [{ file: './assets/Mobile Legends/icon/TopGlobal.png', size: 20, title: 'Top Global Selena' },
+               { file: './assets/Mobile Legends/icon/MVP.png', size: 20, title: 'MVP Tournament' }],
       frame: {
         image: './assets/Mobile Legends/Border/Stardom.png',
         show: true,

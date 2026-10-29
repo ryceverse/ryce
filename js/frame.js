@@ -8,8 +8,10 @@
 // Settings: look.frames in data-look.js, and profile.frame in data-games.js
 // =====================================================
 
-const FRAME_HOLE_FILL = 0.98;      // the hole is a bit smaller than the picture, so the picture tucks under the ring
+const FRAME_HOLE_FILL = 0.98;      // default: the hole is a bit smaller than the picture, so the picture tucks under the ring
 const FRAME_ANALYSIS_SIZE = 192;   // the border is analysed at this size (fast)
+const SPARKLE_MIN_DEPTH = 2;       // sparkles never start closer than this (analysis pixels) to the edge of the border
+const SPARKLE_MIN_SIZE = 0.035;    // too small to see (relative to the profile picture) = skipped
 const frameInfoCache = new Map();
 
 // ---------- Is the border of this profile visible? ----------
@@ -21,9 +23,17 @@ function activeFrame(person) {
   if (!frame || !frame.image || frame.show === false) return null;
   if (settings.enabled === false) return null;
 
+  const number = (value, fallback) => (Number.isFinite(Number(value)) && value !== '' && value != null ? Number(value) : fallback);
+
   return {
     image: frame.image,
     sparkle: frame.sparkle !== false && settings.sparkle !== false,
+    scale: Math.min(3, Math.max(0.3, number(frame.scale, 1))),                 // 1 = automatic fit, 1.1 = 10% bigger border
+    fill: Math.min(1.5, Math.max(0.5, number(frame.fill, FRAME_HOLE_FILL))),   // 1 = photo fills the whole hole, 0.9 = photo smaller
+    size: Math.max(0, number(frame.size, 0)),   // border width in px (at the profile size). 0 = automatic
+    offsetX: number(frame.offsetX, 0),      // move the border in px: + = right (- = left)
+    offsetY: number(frame.offsetY, 0),      // + = down (- = up)
+    sparkleSize: Math.min(5, Math.max(0.2, number(frame.sparkleSize, number(settings.sparkleSize, 1)))),   // 1 = standard, 2 = twice as big
   };
 }
 
@@ -79,14 +89,38 @@ function analyseFrame(image) {
 
   if (touchesEdge) return null;   // the ring has a gap, the hole leaked outside
 
-  // Places for sparkles: solid, bright pixels of the border (metal, gold, crystal)
+  // How far is every solid pixel from the nearest see-through pixel (= how thick the border is there).
+  // Sparkles only start where the border is thick enough, so they stay INSIDE the border.
+  const depth = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const onEdge = x === 0 || y === 0 || x === w - 1 || y === h - 1;
+      depth[y * w + x] = alpha(x, y) >= 128 ? (onEdge ? 1 : 1e6) : 0;
+    }
+  }
+  const at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? 0 : depth[y * w + x]);
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const i = y * w + x;
+      depth[i] = Math.min(depth[i], at(x - 1, y) + 1, at(x, y - 1) + 1, at(x - 1, y - 1) + 1.414, at(x + 1, y - 1) + 1.414);
+    }
+  }
+  for (let y = h - 1; y >= 0; y--) {
+    for (let x = w - 1; x >= 0; x--) {
+      const i = y * w + x;
+      depth[i] = Math.min(depth[i], at(x + 1, y) + 1, at(x, y + 1) + 1, at(x + 1, y + 1) + 1.414, at(x - 1, y + 1) + 1.414);
+    }
+  }
+
+  // Places for sparkles: solid, bright pixels of the border (metal, gold, crystal).
+  // point = [x in %, y in %, thickness around it (fraction of the picture width)]
   const solid = [];
   const bright = [];
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const i = (y * w + x) * 4;
-      if (data[i + 3] < 200) continue;
-      const point = [(x / w) * 100, (y / h) * 100];
+      if (data[i + 3] < 200 || depth[y * w + x] < SPARKLE_MIN_DEPTH) continue;
+      const point = [(x / w) * 100, (y / h) * 100, depth[y * w + x] / w];
       solid.push(point);
       if (0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2] > 110) bright.push(point);
     }
@@ -100,28 +134,47 @@ function analyseFrame(image) {
   };
 }
 
+// Turns the settings (px) into numbers relative to the profile picture (1 = same size)
+function frameOptions(frame, avatarPx) {
+  const base = avatarPx || 128;
+  return {
+    size: frame.size ? frame.size / base : 0,
+    scale: frame.scale,
+    fill: frame.fill,
+    offsetX: frame.offsetX / base,
+    offsetY: frame.offsetY / base,
+  };
+}
+
 // ---------- Where to put the border so the hole sits exactly on the profile picture ----------
 // All numbers are relative to the size of the profile picture (1 = same size).
-function fitFrame(image, found) {
+function fitFrame(image, found, options = {}) {
+  // (found may be replaced below)
+  if (found && (!(found.holeDiameter > 0.2) || found.holeDiameter > 0.95)) found = null;   // strange reading: use the guess
   const hole = found ? found.holeDiameter : 0.62;                 // unknown border: guess
   const centerX = found ? found.centerX : 0.5;
   const centerY = found ? found.centerY : 0.5;
+  const fill = options.fill || FRAME_HOLE_FILL;
+  const scale = options.scale || 1;
 
-  const w = FRAME_HOLE_FILL / hole;
+  // Manual size (frame.size) wins; otherwise the border is fitted to the hole automatically
+  const w = options.size ? options.size : (fill / hole) * scale;
   const h = (w * image.height) / image.width;
-  const x = 0.5 - centerX * w;
-  const y = 0.5 - centerY * h;
+  const x = 0.5 - centerX * w + (options.offsetX || 0);
+  const y = 0.5 - centerY * h + (options.offsetY || 0);
   const extra = Math.max(-x, -y, x + w - 1, y + h - 1, 0);        // how far the border sticks out
 
   return { w, h, x, y, extra };
 }
 
 // Points on a circle, used when the real border could not be analysed
+// (the guess is the middle of the ring: hole radius + half the ring thickness)
 function ringPoints(fit) {
   const points = [];
+  const radius = 0.31 * 100 + 1.7;
   for (let i = 0; i < 90; i++) {
     const angle = (i / 90) * Math.PI * 2;
-    points.push([50 + Math.cos(angle) * 40, 50 + Math.sin(angle) * 40]);
+    points.push([50 + Math.cos(angle) * radius, 50 + Math.sin(angle) * radius, 0.017]);
   }
   return points;
 }
@@ -138,38 +191,55 @@ async function loadFrameInfo(path) {
     found = null;   // local file / other website: fall back to a guess
   }
 
-  const fit = fitFrame(image, found);
-  return { url, fit, points: found ? found.points : ringPoints(fit) };
+  return { url, image, found };
 }
 
-// { url, fit, points } or null (cached)
-function getFrameInfo(path) {
-  if (!frameInfoCache.has(path)) frameInfoCache.set(path, loadFrameInfo(path));
-  return frameInfoCache.get(path);
+// { url, fit, points } or null. The picture is analysed once (cached);
+// the fit is calculated again for each set of options (scale, fill, offset).
+async function getFrameInfo(path, options = {}) {
+  try {
+    if (!frameInfoCache.has(path)) frameInfoCache.set(path, loadFrameInfo(path));
+    const base = await frameInfoCache.get(path);
+    if (!base) {
+      console.warn(`[frame] Border picture not found or not readable: ${path}`);
+      return null;
+    }
+
+    const fit = fitFrame(base.image, base.found, options);
+    return { url: base.url, fit, points: base.found && base.found.points.length ? base.found.points : ringPoints(fit) };
+  } catch (error) {
+    console.warn('[frame] Could not fit the border:', error);
+    return null;
+  }
 }
 
 // ---------- Sparkles ----------
-function addSparkle(layer, points) {
-  const [x, y] = points[Math.floor(Math.random() * points.length)];
+function addSparkle(layer, points, fit, multiplier = 1) {
+  const [x, y, thickness] = points[Math.floor(Math.random() * points.length)];
+
+  // The star may not be wider than the border is thick right there
+  const roomy = thickness * 2 * (fit ? fit.w : 1.6) * 1.3;       // relative to the profile picture
+  const size = Math.min(0.1 + Math.random() * 0.08, roomy) * multiplier;   // multiplier = frame.sparkleSize
+  if (size < SPARKLE_MIN_SIZE) return;
 
   const star = document.createElement('span');
   star.className = 'sparkle';
   star.style.left = `${x}%`;
   star.style.top = `${y}%`;
-  star.style.setProperty('--k', (0.07 + Math.random() * 0.07).toFixed(3));        // size
+  star.style.setProperty('--k', size.toFixed(3));                                   // size
   star.style.setProperty('--dur', `${(1.1 + Math.random() * 0.9).toFixed(2)}s`);  // how long it shines
 
   star.addEventListener('animationend', () => star.remove());
   layer.appendChild(star);
 }
 
-function startSparkles(layer, points) {
+function startSparkles(layer, points, fit, multiplier = 1) {
   if (!points.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const tick = () => {
     if (!layer.isConnected) return;   // the popup was closed: stop
 
-    if (!document.hidden && layer.children.length < 5) addSparkle(layer, points);
+    if (!document.hidden && layer.children.length < 5) addSparkle(layer, points, fit, multiplier);
     setTimeout(tick, 280 + Math.random() * 520);
   };
   tick();
@@ -178,7 +248,14 @@ function startSparkles(layer, points) {
 // ---------- Put the borders on the profile pictures of a container ----------
 function applyFrames(container = document) {
   container.querySelectorAll('.avatar-ring[data-frame]').forEach(async (ring) => {
-    const info = await getFrameInfo(ring.dataset.frame);
+    const d = ring.dataset;
+    const info = await getFrameInfo(d.frame, {
+      size: Number(d.size) || 0,
+      fill: Number(d.fill) || 0,
+      scale: Number(d.scale) || 1,
+      offsetX: Number(d.x) || 0,
+      offsetY: Number(d.y) || 0,
+    });
     if (!ring.isConnected) return;
 
     // Border picture missing: back to the simple round ring
@@ -200,6 +277,6 @@ function applyFrames(container = document) {
         <span class="sparkles"></span>
       </div>`);
 
-    if (ring.dataset.sparkle === '1') startSparkles(ring.querySelector('.sparkles'), info.points);
+    if (ring.dataset.sparkle === '1') startSparkles(ring.querySelector('.sparkles'), info.points, info.fit, Number(d.sparkleSize) || 1);
   });
 }

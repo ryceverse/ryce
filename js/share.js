@@ -123,9 +123,11 @@ function drawBlurredBox(ctx, x, y, w, h) {
 
 // A badge picture from the icon folder (by name), or from its own file
 async function loadBadgePicture(badge) {
-  const item = typeof badge === 'string' ? { icon: badge } : badge;
+  const item = normalizeBadge(badge);
   const path = item.file || await findIconFile([item.icon || item.id]);
-  return path ? loadPicture(path) : null;
+  const picture = path ? await loadPicture(path) : null;
+  // Keep the size from data-games.js: standard size = 24 -> same as in the popup
+  return picture ? { picture, scale: badgeSize(item) / 24, shift: badgeShift(item) } : null;
 }
 
 // ---------- The picture card ----------
@@ -141,7 +143,7 @@ async function makeShareCard(game) {
 
   // Border around the avatar + badges next to the name (same settings as the popup)
   const frame = activeFrame(person);
-  const frameInfo = frame ? await getFrameInfo(frame.image) : null;
+  const frameInfo = frame ? await getFrameInfo(frame.image, frameOptions(frame, avatarSize(person))) : null;
   const frameImage = frameInfo ? await loadPicture(frame.image) : null;
   const frameExtra = frameImage ? Math.ceil(frameInfo.fit.extra * 240) : 0;   // how far it sticks out (px)
   const badgePictures = (await Promise.all(person.badges.map(loadBadgePicture))).filter(Boolean);
@@ -153,7 +155,8 @@ async function makeShareCard(game) {
   const textX = card.x + avatarInset + card.avatar + frameExtra + 48;
   const textWidth = card.x + card.w - card.pad - textX;
 
-  const nameWidth = (person.joined ? textWidth - 190 : textWidth) - badgePictures.length * 56;
+  const badgeSpace = badgePictures.reduce((sum, b) => sum + 70 * b.scale * (b.picture.width / b.picture.height), 0);
+  const nameWidth = (person.joined ? textWidth - 190 : textWidth) - badgeSpace;
   let nameSize = 64;
   measure.font = `700 ${nameSize}px ${CARD_FONT}`;
   while (nameSize > 34 && measure.measureText(person.name).width > nameWidth) {
@@ -228,10 +231,10 @@ async function makeShareCard(game) {
   const radius = card.avatar / 2;
   const cx = card.x + avatarInset + radius;
   const cy = card.y + avatarInset + radius;
+  const cornerRadius = card.avatar * avatarRadius(person) / 100;   // circle / square / rounded
 
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+  roundedRect(ctx, cx - radius, cy - radius, card.avatar, card.avatar, cornerRadius);
   ctx.clip();
   if (avatar) {
     drawCover(ctx, avatar, cx - radius, cy - radius, radius * 2, radius * 2);
@@ -252,8 +255,7 @@ async function makeShareCard(game) {
     ctx.drawImage(frameImage, cx - radius + fit.x * card.avatar, cy - radius + fit.y * card.avatar,
       fit.w * card.avatar, fit.h * card.avatar);
   } else {
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    roundedRect(ctx, cx - radius, cy - radius, card.avatar, card.avatar, cornerRadius);
     ctx.lineWidth = 8;
     ctx.strokeStyle = 'rgba(255,255,255,0.2)';
     ctx.stroke();
@@ -267,11 +269,14 @@ async function makeShareCard(game) {
   ctx.fillText(person.name, textX, nameBaseline);
 
   // Badges (verified ...) next to the name
-  const badgeSize = Math.round(nameSize * 0.82);
   let badgeX = textX + nameTextWidth + 14;
-  badgePictures.forEach((picture) => {
-    ctx.drawImage(picture, badgeX, nameBaseline - nameSize * 0.36 - badgeSize / 2, badgeSize, badgeSize);
-    badgeX += badgeSize + 10;
+  const pixel = nameSize / 30;   // the popup name is about 30 px: x / y offsets are scaled the same way
+  badgePictures.forEach(({ picture, scale, shift }) => {
+    const badgeHeight = Math.round(nameSize * 0.82 * scale);
+    const badgeWidth = Math.round(badgeHeight * picture.width / picture.height);
+    badgeX += shift.x * pixel;
+    ctx.drawImage(picture, badgeX, nameBaseline - nameSize * 0.36 - badgeHeight / 2 + shift.y * pixel, badgeWidth, badgeHeight);
+    badgeX += badgeWidth + 10;
   });
 
   ctx.font = `400 32px ${CARD_FONT}`;

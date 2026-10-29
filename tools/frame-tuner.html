@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Frame Tuner - Ryce</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 15px/1.5 system-ui, sans-serif; background: #0b0d12; color: #e8eaf0; }
+    main { max-width: 980px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr) 360px; }
+    @media (max-width: 800px) { main { grid-template-columns: 1fr; } }
+    h1 { grid-column: 1 / -1; margin: 0; font-size: 1.4rem; }
+    h1 small { display: block; font-size: .85rem; font-weight: 400; color: #9aa0b0; }
+    .stage { display: grid; place-items: center; min-height: 460px; align-self: start; position: sticky; top: 16px; border-radius: 22px; background: rgba(14,17,26,.6); border: 1px solid rgba(255,255,255,.14); position: relative; overflow: hidden;
+      background-image: linear-gradient(45deg,#14171f 25%,transparent 25%),linear-gradient(-45deg,#14171f 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#14171f 75%),linear-gradient(-45deg,transparent 75%,#14171f 75%);
+      background-size: 24px 24px; background-position: 0 0,0 12px,12px -12px,-12px 0; }
+    .ring { position: relative; }
+    .photo { position: absolute; inset: 0; overflow: hidden; background: #1a1d26; display: grid; place-items: center; color: #8a8fa0; font-size: 2.4rem; font-weight: 700; }
+    .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .frame { position: absolute; pointer-events: none; }
+    .frame img { display: block; width: 100%; height: 100%; }
+    .guide { position: absolute; inset: 0; border: 1px dashed rgba(255,255,255,.45); pointer-events: none; }
+    .panel { display: grid; gap: 14px; align-content: start; padding: 18px; border-radius: 22px; background: rgba(14,17,26,.6); border: 1px solid rgba(255,255,255,.14); }
+    label { display: grid; gap: 4px; font-size: .85rem; color: #b9bfcc; }
+    .row { display: grid; grid-template-columns: 1fr 70px; gap: 8px; align-items: center; }
+    input[type=number], select { width: 100%; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,.18); background: #151923; color: #fff; font: inherit; }
+    input[type=range] { width: 100%; }
+    input[type=file] { font-size: .8rem; }
+    button { padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.08); color: #fff; font: inherit; cursor: pointer; }
+    button:hover { background: rgba(255,255,255,.16); }
+    pre { margin: 0; padding: 12px; border-radius: 12px; background: #080a0e; border: 1px solid rgba(255,255,255,.12); font-size: .8rem; overflow: auto; white-space: pre; }
+    .note { font-size: .8rem; color: #9aa0b0; }
+    .check { display: flex; align-items: center; gap: 8px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Frame Tuner <small>Preview foto profil + border. Atur sampai pas, lalu salin hasilnya ke <code>js/data-games.js</code>. Gambar tidak diupload ke mana-mana.</small></h1>
+
+  <div class="stage"><div class="ring" id="ring">
+    <div class="photo" id="photo"><span id="initial">R</span></div>
+    <div class="frame" id="frame"><img id="frameImg" alt="" /></div>
+    <div class="guide" id="guide"></div>
+  </div></div>
+
+  <div class="panel">
+    <label>Foto profil <input type="file" id="avatarFile" accept="image/*" /></label>
+    <label>Border <input type="file" id="frameFile" accept="image/*" /></label>
+
+    <label>Bentuk foto
+      <select id="shape"><option value="circle">circle</option><option value="square">square</option><option value="rounded">rounded</option></select>
+    </label>
+
+    <label>Ukuran foto profil (px)
+      <div class="row"><input type="range" id="avatarSizeR" min="64" max="256" value="128" /><input type="number" id="avatarSize" value="128" /></div>
+    </label>
+
+    <label>Ukuran border (px)
+      <div class="row"><input type="range" id="frameSizeR" min="64" max="500" value="200" /><input type="number" id="frameSize" value="200" /></div>
+    </label>
+
+    <label>Geser kiri / kanan (px)
+      <div class="row"><input type="range" id="offsetXR" min="-40" max="40" value="0" /><input type="number" id="offsetX" value="0" /></div>
+    </label>
+    <label>Geser atas / bawah (px)
+      <div class="row"><input type="range" id="offsetYR" min="-40" max="40" value="0" /><input type="number" id="offsetY" value="0" /></div>
+    </label>
+
+    <div class="check"><input type="checkbox" id="guideOn" checked /><label for="guideOn" style="display:inline">Tampilkan garis kotak foto</label></div>
+    <button id="auto" type="button">Ukuran otomatis (ikuti lubang border)</button>
+    <p class="note" id="info">Pilih file border dulu.</p>
+
+    <pre id="out"></pre>
+    <button id="copy" type="button">Salin hasil</button>
+    <p class="note">Nama file di hasil hanya contoh. Ganti <code>image</code> dengan path border di folder assets kamu. Besar kecil kilauan diatur dengan <code>sparkleSize</code> langsung di data-games.js.</p>
+  </div>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { hole: null, autoSize: 200, frameName: 'Border.png', natural: { w: 1, h: 1 } };
+
+// ---- find the hole of the border (same idea as js/frame.js) ----
+function analyse(img) {
+  const s = Math.min(1, 256 / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.max(1, Math.round(img.naturalWidth * s)), h = Math.max(1, Math.round(img.naturalHeight * s));
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d', { willReadFrequently: true }); ctx.drawImage(img, 0, 0, w, h);
+  const d = ctx.getImageData(0, 0, w, h).data, a = (x, y) => d[(y * w + x) * 4 + 3];
+  const sx = w >> 1, sy = h >> 1;
+  if (a(sx, sy) >= 24) return null;
+  const seen = new Uint8Array(w * h), q = [sy * w + sx]; seen[q[0]] = 1;
+  let minX = w, maxX = 0, minY = h, maxY = 0, edge = false;
+  for (let i = 0; i < q.length; i++) {
+    const x = q[i] % w, y = (q[i] / w) | 0;
+    minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    if (!x || !y || x === w - 1 || y === h - 1) edge = true;
+    for (const [dx, dy] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+      const nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+      const id = ny * w + nx;
+      if (!seen[id] && a(nx, ny) < 24) { seen[id] = 1; q.push(id); }
+    }
+  }
+  if (edge) return null;
+  return { diameter: ((maxX - minX + 1) + (maxY - minY + 1)) / 2 / w, cx: (minX + maxX + 1) / 2 / w, cy: (minY + maxY + 1) / 2 / h };
+}
+
+function sync(from, to) { $(from).addEventListener('input', () => { $(to).value = $(from).value; render(); }); }
+['avatarSize', 'frameSize', 'offsetX', 'offsetY'].forEach((k) => { sync(k + 'R', k); sync(k, k + 'R'); });
+['shape', 'guideOn'].forEach((k) => $(k).addEventListener('input', render));
+
+function render() {
+  const A = Number($('avatarSize').value) || 128;
+  const W = Number($('frameSize').value) || state.autoSize;
+  const H = W * state.natural.h / state.natural.w;
+  const cx = state.hole ? state.hole.cx : 0.5, cy = state.hole ? state.hole.cy : 0.5;
+
+  $('ring').style.cssText = `width:${A}px;height:${A}px`;
+  const radius = { circle: '50%', square: '0', rounded: '18%' }[$('shape').value];
+  $('photo').style.borderRadius = radius;
+  $('guide').style.borderRadius = radius;
+  $('guide').style.display = $('guideOn').checked ? 'block' : 'none';
+
+  const fx = A / 2 - cx * W + Number($('offsetX').value), fy = A / 2 - cy * H + Number($('offsetY').value);
+  Object.assign($('frame').style, { width: W + 'px', height: H + 'px', left: fx + 'px', top: fy + 'px' });
+
+  const ox = Number($('offsetX').value), oy = Number($('offsetY').value);
+  $('out').textContent =
+`shape: '${$('shape').value}',
+size: ${A},
+frame: {
+  image: './assets/.../${state.frameName}',
+  show: true,
+  sparkle: true,
+  size: ${W},
+  offsetX: ${ox},
+  offsetY: ${oy},
+  sparkleSize: 1,
+},`;
+}
+
+$('avatarFile').addEventListener('change', (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  $('initial').style.display = 'none';
+  const old = $('photo').querySelector('img'); if (old) old.remove();
+  const img = new Image(); img.src = URL.createObjectURL(f); $('photo').appendChild(img);
+});
+
+$('frameFile').addEventListener('change', (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  state.frameName = f.name;
+  const img = $('frameImg');
+  img.onload = () => {
+    state.natural = { w: img.naturalWidth, h: img.naturalHeight };
+    state.hole = analyse(img);
+    const A = Number($('avatarSize').value) || 128;
+    state.autoSize = state.hole ? Math.round((0.98 / state.hole.diameter) * A) : Math.round(A * 1.6);
+    $('frameSize').value = $('frameSizeR').value = state.autoSize;
+    $('info').textContent = state.hole
+      ? `Lubang border = ${(state.hole.diameter * 100).toFixed(1)}% lebar gambar. Ukuran otomatis untuk foto ${A}px: ${state.autoSize}px.`
+      : 'Lubang border tidak terdeteksi (tengahnya tidak transparan atau cincin terputus). Atur manual.';
+    render();
+  };
+  img.src = URL.createObjectURL(f);
+});
+
+$('auto').addEventListener('click', () => { $('frameSize').value = $('frameSizeR').value = state.autoSize; $('offsetX').value = $('offsetXR').value = 0; $('offsetY').value = $('offsetYR').value = 0; render(); });
+$('copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText($('out').textContent); $('copy').textContent = 'Tersalin!'; } catch (e) { $('copy').textContent = 'Blok teks lalu Ctrl+C'; } setTimeout(() => ($('copy').textContent = 'Salin hasil'), 1500); });
+render();
+</script>
+</body>
+</html>

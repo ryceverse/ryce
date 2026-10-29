@@ -13,16 +13,43 @@
 //               e.g. focus: 'center top' or 'center 30%'
 //
 // profile     = the card in the detail popup. An empty value hides that part.
-//   avatar    = round profile picture
+//   avatar    = profile picture (png / jpg / webp ...)
+//   shape     = shape of the profile picture:  'circle' | 'square' | 'rounded'
+//               (match it to the hole of the border: round border = 'circle', square border = 'square')
+//   radius    = (optional) own corner roundness in %, 0 = square ... 50 = circle. Wins over shape.
+//   size      = profile picture size in px (standard 128). Phones shrink it automatically.
 //   name      = nickname      copyName: true adds a copy icon next to it
 //   bio       = short text under the name
 //   joined    = year shown as "Bergabung"
-//   badges    = small icons next to the name, e.g. ['verified'] (picture: assets/Icon/Verified.png)
-//               [] = no badge. Several are possible: ['verified', 'discord']
+//   badges    = small icons next to the name. Every game can use a DIFFERENT picture + size:
+//                 ['verified']                                   -> assets/Icon/Verified.png (found by name)
+//                 ['./assets/Icon/Verified (White).png']         -> any file you write (png / jpg / webp / svg)
+//                 [{ file: './assets/Icon/Verified (White).png', size: 28 }]   -> own file + own size (px)
+//                 []                                             -> no badge
+//                 [{ file: '...', title: 'Verified Player' }]  -> text in the box when the mouse is on the label
+//               x / y = position in px: y: 3 = 3 px LOWER, y: -3 = higher, x: 4 = 4 px to the right
+//                 [{ file: '...', y: 3 }]   (default for all: look.badges.x / y in data-look.js)
+//               title = hover text (tap on phones). Empty '' = no box. Not written = 'Verified'.
+//               size = height in px, standard 24 (width follows the picture). Several badges are possible.
 //   frame     = decorative border around the profile picture:
 //                 image   : path of the border picture (empty = no border)
 //                 show    : false = hide the border without deleting it
 //                 sparkle : false = no twinkling lights on this border
+//                 size    : border width in px, FREE (any number). 0 = automatic (fits the hole by itself)
+//                           the number is for the profile picture size above (size: 128) and grows/shrinks with it
+//                 offsetX / offsetY : move the border in px, offsetX: 3 = 3 px right, offsetY: -2 = 2 px up
+//                 sparkleSize : size of the twinkling lights, 1 = standard, 2 = twice as big, 0.5 = half
+//                 scale / fill : only when size is 0 (automatic): scale 1 = standard, fill 0.98 = standard
+//                 Easiest way to find the numbers: open tools/frame-tuner.html (live preview + copy the result)
+//
+// SIZE GUIDE (so editing is easy)
+//   Profile picture file : 512 x 512 px, SQUARE (the site crops/shapes it). Minimum 256 x 256.
+//   Profile picture show : size: 128 (standard) -> use 96 for small, 160 for big
+//   Border file          : 512 x 512 up to 1024 x 1024 px, transparent PNG / WebP, hole in the middle,
+//                          hole about 60 - 70% of the picture width. The hole is found automatically.
+//   Border show size     : you decide: frame.size (px). Example: profile size 128 + border size 200.
+//                          Not exactly in the middle? Move it with frame.offsetX / offsetY.
+//   Badge picture file   : 256 x 256 px or bigger, transparent PNG. Show size: 24 px (standard).
 //   stats     = rows under the bio:
 //                 { label: 'UID', value: '123', copy: true }        -> copy icon (copies the value)
 //                 { label: 'ID', value: '123 (45)', copy: '123' }   -> copy icon (copies only '123')
@@ -50,15 +77,21 @@ const games = [
 
     profile: {
       avatar: './assets/Genshin Impact/Profile/Profile.png',
+      shape: 'circle',
+      size: 128,
       name: 'Ryce',
       copyName: false,
       bio: 'Hanya Pengembara yang lewat',
       joined: '2016',
-      badges: ['verified'],  
+      badges: [{ file: './assets/Icon/Verified.png', size: 20, title: 'Verified Genshin Player' }],
       frame: {
-        image: './assets/Genshin Impact/Border/Border1.webp',
+        image: './assets/Genshin Impact/Border/Border.png',
         show: true,
         sparkle: true,
+        size: 0,          // border width in px (0 = automatic)
+        offsetX: 0,
+        offsetY: 0,
+        sparkleSize: 1,   // size of the twinkling lights (1 = standard)
       },
       stats: [
         { label: 'UID', value: '820476661', copy: true },
@@ -97,17 +130,13 @@ const games = [
 
     profile: {
       avatar: './assets/Honkai Star Rail/Profile/Profile.png',
+      shape: 'circle',
+      size: 128,
       name: 'Ryce',
       copyName: false,
       bio: 'Rehat Sejenak',
       joined: '2018',
-      badges: [
-        {
-        icon: 'verified',
-        file: './assets/Icon/Verified(White).png',
-        title: 'Verified White',
-        },
-      ],
+      badges: [{ file: './assets/Icon/Verified (White).png', size: 20, title: 'Verified Honkai Player' }],
       frame: {
         image: '',
         show: true,
@@ -150,20 +179,26 @@ const games = [
 
     profile: {
       avatar: './assets/Mobile Legends/Profile/Profile.png',
+      shape: 'square',
+      size: 128,
       name: 'Ryce',
       copyName: false,
       bio: 'Tournament MVP • Midlaner • 1st Place — MLBB Banjarmasin',
       joined: '2016',
       badges: ['verified'],
       frame: {
-        image: './assets/Mobile Legends/Border/BorderMLBB.png',
+        image: './assets/Mobile Legends/Border/Stardom.png',
         show: true,
         sparkle: true,
+        size: 0,          // border width in px (0 = automatic)
+        offsetX: 0,
+        offsetY: 0,
+        sparkleSize: 1,   // size of the twinkling lights (1 = standard)
       },
       stats: [
         { label: 'ID', value: '97255743 (2504)', copy: '97255743' },
         { label: 'Rank', value: 'Mythical Immortal' },
-        { label: 'Point', progress: 85, value:'1518' },
+        { label: 'Point', progress: 80, value:'1518' },
         
       ],
     },
@@ -196,6 +231,8 @@ const games = [
 
     profile: {
       avatar: './assets/Clash Of Clans/Profile/Profile.png',
+      shape: 'circle',
+      size: 128,
       name: 'Ryce',
       copyName: false,
       bio: 'Hanya Pemain Biasa',
@@ -237,6 +274,8 @@ const games = [
 
     profile: {
       avatar: './assets/Lost Saga/Profile/Profile.png',
+      shape: 'circle',
+      size: 128,
       name: 'LexusDarkTao',
       copyName: true,
       bio: 'Selamat Istirahat COL!',
@@ -282,6 +321,8 @@ const games = [
 
     profile: {
       avatar: './assets/Chess/Profile/Profile.png',
+      shape: 'circle',
+      size: 128,
       name: 'fikrispt',
       copyName: true,
       bio: 'Mencoba Berfikir',

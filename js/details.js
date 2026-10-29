@@ -107,7 +107,26 @@ function getPerson(game) {
     stats: (own.stats || []).filter((stat) => stat.value || stat.progress != null),
     frame: own.frame || null,
     badges: own.badges || [],
+    shape: own.shape || '',
+    radius: own.radius,
+    size: Number(own.size) || 0,
   };
+}
+
+// ---------- Profile picture: shape + size ----------
+// shape: 'circle' (default) | 'square' | 'rounded'   radius: own corner radius in % (0 - 50)
+const AVATAR_SHAPES = { circle: 50, square: 0, rounded: 18 };
+
+function avatarRadius(person) {
+  const own = Number(person.radius);
+  if (person.radius !== undefined && person.radius !== '' && !Number.isNaN(own)) return Math.min(50, Math.max(0, own));
+
+  const shape = person.shape || (look.avatar && look.avatar.shape) || 'circle';
+  return AVATAR_SHAPES[shape] ?? 50;
+}
+
+function avatarSize(person) {
+  return person.size || (look.avatar && look.avatar.size) || 128;
 }
 
 // ---------- Profile card (avatar, name, bio, stats, joined) ----------
@@ -155,18 +174,51 @@ function buildStat(stat) {
     </div>`;
 }
 
-// Small icons next to the name. 'verified' = the picture Verified.png in the icon folder.
-//   badges: ['verified']                                  -> by name
-//   badges: [{ icon: 'verified', file: './x.png', title: 'Verified', color: 'original' }]
+// Small icon next to the name. Every game can use its own picture and size.
+//   badges: ['verified']                               -> picture named "verified" in assets/Icon/
+//   badges: ['./assets/Icon/Verified (White).png']     -> your own file (png / jpg / webp / svg ...)
+//   badges: [{ file: './x.png', size: 28 }]            -> own file + own size (px)
+//   badges: [{ file: './x.png', title: 'Verified Player' }]   -> text of the box that shows on hover / tap
+//   badges: [{ icon: 'verified', size: 20, title: 'Verified', color: 'original' }]
+// A text with "/" or a file ending is a file path, any other text is an icon name.
+function normalizeBadge(badge) {
+  if (typeof badge === 'string') {
+    const isFile = /[\/\\]/.test(badge) || IMAGE_PATTERN.test(badge);
+    return isFile ? { file: badge } : { icon: badge };
+  }
+  return badge || {};
+}
+
+function badgeSize(item) {
+  return Number(item.size) || Number(look.badges && look.badges.size) || 24;
+}
+
+// Position of the badge: x = right (+) / left (-), y = down (+) / up (-), in px. Standard 0.
+//   badges: [{ file: '...', y: 3 }]       -> 3 px lower
+// Default for all badges: look.badges.x / look.badges.y in data-look.js
+function badgeShift(item) {
+  const number = (value, fallback) => (Number.isFinite(Number(value)) && value !== '' && value != null ? Number(value) : fallback);
+  return {
+    x: number(item.x, number(look.badges && look.badges.x, 0)),
+    y: number(item.y, number(look.badges && look.badges.y, 0)),
+  };
+}
+
 function buildBadges(person) {
   return person.badges.map((badge) => {
-    const item = typeof badge === 'string' ? { icon: badge } : badge;
+    const item = normalizeBadge(badge);
     const id = item.icon || item.id || '';
     const color = item.color || (look.badges && look.badges.color) || 'original';
+    // Text of the hover box: title / text in data-games.js. title: '' (or false) = no box.
+    const label = item.title ?? item.text ?? (id ? id.charAt(0).toUpperCase() + id.slice(1) : 'Verified');
+    const tip = label === false ? '' : String(label).trim();
+    const tipAttributes = tip ? ` data-tip="${esc(tip)}" tabindex="0" aria-label="${esc(tip)}"` : '';
+
+    const { x, y } = badgeShift(item);
 
     return `
-      <span class="badge" title="${esc(item.title || id)}">
-        ${renderIcon({ id, name: id, icon: item.file, iconColor: color })}
+      <span class="badge"${tipAttributes} style="--badge-size:${badgeSize(item)}px;--badge-x:${x}px;--badge-y:${y}px">
+        ${renderIcon({ id, name: id || ' ', icon: item.file, iconColor: color })}
       </span>`;
   }).join('');
 }
@@ -181,9 +233,14 @@ function buildProfileCard(game) {
 
   // Decorative border around the picture (frame.js fits it and adds the sparkles)
   const frame = activeFrame(person);
+  const size = avatarSize(person);
+  const ringStyle = `--avatar:clamp(${Math.min(84, size)}px, 22vw, ${size}px);--avatar-radius:${avatarRadius(person)}%`;
+  const fit = frame ? frameOptions(frame, size) : null;
   const ringAttributes = frame
-    ? ` class="avatar-ring has-frame" data-frame="${esc(frame.image)}" data-sparkle="${frame.sparkle ? 1 : 0}" style="--frame-extra:0.3"`
-    : ' class="avatar-ring"';
+    ? ` class="avatar-ring has-frame" data-frame="${esc(frame.image)}" data-sparkle="${frame.sparkle ? 1 : 0}"` +
+      ` data-sparkle-size="${frame.sparkleSize}" data-size="${fit.size}" data-fill="${fit.fill}" data-scale="${fit.scale}"` +
+      ` data-x="${fit.offsetX}" data-y="${fit.offsetY}" style="${ringStyle};--frame-extra:0.3"`
+    : ` class="avatar-ring" style="${ringStyle}"`;
 
   return `
     <section class="profile-card">

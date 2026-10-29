@@ -49,11 +49,22 @@ const look = {
   frames: {
     enabled: true,   // false = hide the border on EVERY game
     sparkle: true,   // false = no twinkling lights on EVERY border
+    sparkleSize: 1,  // size of the twinkling lights on EVERY border: 1 = standard, 1.5 = bigger, 0.7 = smaller
   },
 
   // ---------- Badges next to the name (verified ...) ----------
-  // The picture comes from the icon folder by name: 'verified' = Verified.png
+  // Every game can pick its own badge picture + size in data-games.js (profile.badges).
+  // These are only the DEFAULTS.
   badges: {
     color: 'original',   // 'original' | 'white' | 'black'
+    size: 24,            // default height of the badge in px (standard)
+    x: 0,                // default position: + = right, - = left (px)
+    y: 0,                // default position: + = DOWN, - = up (px). Each badge can have its own x / y in data-games.js
+  },
+
+  // ---------- Profile picture (defaults, every game can override in data-games.js) ----------
+  avatar: {
+    shape: 'circle',     // 'circle' | 'square' | 'rounded'
+    size: 128,           // size on desktop in px (standard). Phones shrink it automatically.
   },
 };

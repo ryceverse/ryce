@@ -43,3 +43,15 @@ Discord: tambahkan satu entri di `js/data-socials.js` (lihat contoh di chat), ka
 - Border dipasang otomatis: website mencari lubang di tengah gambar border lalu menyesuaikan ukuran foto profil.
 - `profile.badges: ['verified']` menampilkan icon di samping nama (gambar `assets/Icon/Verified.png`).
 - `tools/optimize-images.html`: alat untuk mengecilkan gambar (buka di Chrome, tidak perlu install apa pun).
+
+## Label verified, bentuk foto profil, ukuran (v11)
+- **Label per game**: di `profile.badges` tiap game. `['verified']` = cari `Verified.png` otomatis; `['./assets/Icon/Verified (White).png']` = file bebas (png/jpg/webp/svg); `[{ file: '...', size: 28 }]` = file + ukuran sendiri (px). Ukuran standar 24 (`look.badges.size` di `data-look.js`).
+- **Bentuk foto**: `shape: 'circle' | 'square' | 'rounded'` (atau `radius: 0-50` untuk sudut custom). Standar global di `look.avatar` (`data-look.js`).
+- **Ukuran foto**: `size: 128` (px, standar). HP mengecil otomatis.
+- **Border**: `frame.scale` (1 = otomatis), `frame.fill` (0.98 standar), `frame.offsetX/offsetY` untuk geser.
+- **Acuan ukuran file**: foto profil 512x512 px (kotak); border 512-1024 px PNG/WebP transparan dengan lubang ±60-70% lebar; label 256x256+ transparan. Tampil: foto 128 px, border otomatis ±200 px, label 24 px.
+- **Textbox saat hover label**: `title` di badge, contoh `{ file: '...', title: 'Verified Player' }`. Di HP muncul saat label diketuk. `title: ''` = tanpa box.
+- **Posisi label**: `x` / `y` (px) di badge, `y: 3` = turun 3 px, `y: -3` = naik. Default semua label: `look.badges.x/y` di `data-look.js`.
+- **Kilauan border** sekarang hanya muncul di bagian border yang cukup tebal, dan ukurannya mengikuti tebal border di titik itu.
+- **Border ukuran bebas**: `frame.size` (px, mengikuti ukuran foto profil), `offsetX/offsetY` (px). `size: 0` = otomatis. **Kilauan**: `frame.sparkleSize` (1 = standar, 2 = dua kali) atau semua sekaligus di `look.frames.sparkleSize`.
+- **Alat bantu**: buka `tools/frame-tuner.html`, pilih foto + border, geser slider sampai pas, lalu salin hasilnya ke `data-games.js`.

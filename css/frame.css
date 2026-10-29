@@ -78,7 +78,7 @@
 .sparkle::after {
   content: "";
   position: absolute;
-  inset: -60%;
+  inset: -15%;
   background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 62%);
 }
 
@@ -89,9 +89,64 @@
   flex: none;
 }
 
-.badge svg,
+/* Position: --badge-x / --badge-y (px) come from data-games.js (x, y) */
+.badge {
+  margin-left: var(--badge-x, 0px);
+  translate: 0 var(--badge-y, 0px);
+}
+
+/* Size comes from --badge-size (set per badge, default in look.badges.size) */
+.badge svg {
+  width: var(--badge-size, 24px);
+  height: var(--badge-size, 24px);
+}
+
 .badge img {
-  width: 0.85em;
-  height: 0.85em;
+  width: auto;
+  height: var(--badge-size, 24px);
+  max-width: calc(var(--badge-size, 24px) * 3);
   object-fit: contain;
+}
+
+/* ---------- Hover box (text of the badge: title in data-games.js) ---------- */
+.badge[data-tip] {
+  position: relative;
+  cursor: default;   /* help = tanda tanya, pointer = tangan, default = panah biasa */
+  outline: none;
+}
+
+.badge[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  translate: -50% 4px;
+  width: max-content;
+  max-width: min(240px, 70vw);
+  padding: 0.45rem 0.8rem;
+  border-radius: 10px;
+  background: rgba(14, 17, 26, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.35;
+  text-align: center;
+  white-space: normal;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.18s ease, translate 0.18s ease, visibility 0.18s;
+  z-index: 5;
+}
+
+.badge[data-tip]:hover::after,
+.badge[data-tip]:focus-visible::after,
+.badge[data-tip]:focus::after {
+  opacity: 1;
+  visibility: visible;
+  translate: -50% 0;
 }

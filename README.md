@@ -55,3 +55,8 @@ Discord: tambahkan satu entri di `js/data-socials.js` (lihat contoh di chat), ka
 - **Kilauan border** sekarang hanya muncul di bagian border yang cukup tebal, dan ukurannya mengikuti tebal border di titik itu.
 - **Border ukuran bebas**: `frame.size` (px, mengikuti ukuran foto profil), `offsetX/offsetY` (px). `size: 0` = otomatis. **Kilauan**: `frame.sparkleSize` (1 = standar, 2 = dua kali) atau semua sekaligus di `look.frames.sparkleSize`.
 - **Alat bantu**: buka `tools/frame-tuner.html`, pilih foto + border, geser slider sampai pas, lalu salin hasilnya ke `data-games.js`.
+
+## Kecepatan loading (v13)
+- Semua gambar yang dipakai situs sudah dikecilkan ke `.webp` (wallpaper maks 1600 px, cover 480 px, foto profil 384 px, border 640 px, icon 256 px). Total gambar yang dipakai: 39,8 MB -> 4,3 MB.
+- `js/assets.js`: gambar dimuat langsung dari path yang kamu tulis (tidak menunggu daftar file GitHub). Daftar file hanya dipakai kalau path salah, dan daftar lama dipakai dulu lalu di-refresh di belakang layar.
+- Tambah gambar baru: kecilkan dulu dengan `tools/optimize-images.html` (pilih WebP), lalu upload. Patokan: wallpaper/galeri <= 200 KB, cover <= 50 KB, foto profil/border/icon <= 60 KB.

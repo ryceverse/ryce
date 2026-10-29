@@ -74,7 +74,7 @@ function buildSupportCard(card, index) {
   const visual = isQr
     ? `
       <button class="support-visual is-qr" data-qr="${index}" aria-label="Enlarge ${esc(card.title)} code">
-        <img data-asset="${esc(card.image)}" alt="${esc(card.title)} code">
+        <img data-asset="${esc(card.image)}" alt="${esc(card.title)} code" loading="lazy" decoding="async">
         ${card.hint ? `<span class="zoom-hint">${esc(card.hint)}</span>` : ''}
       </button>`
     : `

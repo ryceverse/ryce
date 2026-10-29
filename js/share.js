@@ -155,11 +155,14 @@ async function makeShareCard(game) {
   const textX = card.x + avatarInset + card.avatar + frameExtra + 48;
   const textWidth = card.x + card.w - card.pad - textX;
 
-  const badgeSpace = badgePictures.reduce((sum, b) => sum + 70 * b.scale * (b.picture.width / b.picture.height), 0);
-  const nameWidth = (person.joined ? textWidth - 190 : textWidth) - badgeSpace;
+  // The name is as big as possible: name + badges must fit in the row (next to "Bergabung", if shown)
+  const rowWidth = person.joined ? textWidth - 150 : textWidth;
+  const badgesWidth = (size) => badgePictures.reduce(
+    (sum, b) => sum + Math.round(size * 0.82 * b.scale * (b.picture.width / b.picture.height)) + 10, badgePictures.length ? 14 : 0);
+
   let nameSize = 64;
   measure.font = `700 ${nameSize}px ${CARD_FONT}`;
-  while (nameSize > 34 && measure.measureText(person.name).width > nameWidth) {
+  while (nameSize > 34 && measure.measureText(person.name).width + badgesWidth(nameSize) > rowWidth) {
     nameSize -= 2;
     measure.font = `700 ${nameSize}px ${CARD_FONT}`;
   }

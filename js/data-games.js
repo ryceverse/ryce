@@ -23,8 +23,8 @@
 //   joined    = year shown as "Bergabung"
 //   badges    = small icons next to the name. Every game can use a DIFFERENT picture + size:
 //                 ['verified']                                   -> assets/Icon/Verified.png (found by name)
-//                 ['./assets/Icon/Verified (White).png']         -> any file you write (png / jpg / webp / svg)
-//                 [{ file: './assets/Icon/Verified (White).png', size: 28 }]   -> own file + own size (px)
+//                 ['./assets/Icon/Verified (White).webp']         -> any file you write (png / jpg / webp / svg)
+//                 [{ file: './assets/Icon/Verified (White).webp', size: 28 }]   -> own file + own size (px)
 //                 []                                             -> no badge
 //                 [{ file: '...', title: 'Verified Player' }]  -> text in the box when the mouse is on the label
 //               x / y = position in px: y: 3 = 3 px LOWER, y: -3 = higher, x: 4 = 4 px to the right
@@ -72,20 +72,20 @@ const games = [
     title: 'Genshin Impact',
     genre: 'Action RPG',
 
-    background: './assets/Genshin Impact/Wallpaper/Wallpaper.png',
-    cover: './assets/Genshin Impact/Cover/Cover.png',
+    background: './assets/Genshin Impact/Wallpaper/Wallpaper.webp',
+    cover: './assets/Genshin Impact/Cover/Cover.webp',
 
     profile: {
-      avatar: './assets/Genshin Impact/Profile/Profile.png',
+      avatar: './assets/Genshin Impact/Profile/Profile.webp',
       shape: 'circle',
       size: 128,
       name: 'Ryce',
       copyName: false,
       bio: 'Hanya Pengembara yang lewat',
       joined: '2016',
-      badges: [{ file: './assets/Icon/Verified.png', size: 20, title: 'Verified Genshin Player' }],
+      badges: [{ file: './assets/Icon/Verified.webp', size: 20, title: 'Verified Genshin Player' }],
       frame: {
-        image: './assets/Genshin Impact/Border/Border.png',
+        image: './assets/Genshin Impact/Border/Border.webp',
         show: true,
         sparkle: true,
         size: 0,          // border width in px (0 = automatic)
@@ -102,9 +102,9 @@ const games = [
     description: '',
 
     gallery: [
-      './assets/Genshin Impact/foto1.jpg',
-      './assets/Genshin Impact/foto2.jpg',
-      './assets/Genshin Impact/foto3.jpg',
+      './assets/Genshin Impact/foto1.webp',
+      './assets/Genshin Impact/foto2.webp',
+      './assets/Genshin Impact/foto3.webp',
       './assets/Genshin Impact/foto4.jpg',
       './assets/Genshin Impact/foto5.jpg',
       './assets/Genshin Impact/foto6.jpg',
@@ -125,18 +125,18 @@ const games = [
     title: 'Honkai: Star Rail',
     genre: 'Turn-based RPG',
 
-    background: './assets/Honkai Star Rail/Wallpaper/foto1.jpg',
-    cover: './assets/Honkai Star Rail/Cover/Cover.png',
+    background: './assets/Honkai Star Rail/Wallpaper/foto1.webp',
+    cover: './assets/Honkai Star Rail/Cover/Cover.webp',
 
     profile: {
-      avatar: './assets/Honkai Star Rail/Profile/Profile.png',
+      avatar: './assets/Honkai Star Rail/Profile/Profile.webp',
       shape: 'circle',
       size: 128,
       name: 'Ryce',
       copyName: false,
       bio: 'Rehat Sejenak',
       joined: '2018',
-      badges: [{ file: './assets/Icon/Verified (White).png', size: 20, title: 'Verified Honkai Player' }],
+      badges: [{ file: './assets/Icon/Verified (White).webp', size: 20, title: 'Verified Honkai Player' }],
       frame: {
         image: '',
         show: true,
@@ -151,15 +151,15 @@ const games = [
     description: '',
 
     gallery: [
-      './assets/Honkai Star Rail/foto1.jpg',
-      './assets/Honkai Star Rail/foto2.jpg',
-      './assets/Honkai Star Rail/foto3.jpg',
-      './assets/Honkai Star Rail/foto4.jpg',
-      './assets/Honkai Star Rail/foto5.jpg',
-      './assets/Honkai Star Rail/foto6.jpg',
-      './assets/Honkai Star Rail/foto7.jpg',
-      './assets/Honkai Star Rail/foto8.jpg',
-      './assets/Honkai Star Rail/foto9.jpg',
+      './assets/Honkai Star Rail/foto1.webp',
+      './assets/Honkai Star Rail/foto2.webp',
+      './assets/Honkai Star Rail/foto3.webp',
+      './assets/Honkai Star Rail/foto4.webp',
+      './assets/Honkai Star Rail/foto5.webp',
+      './assets/Honkai Star Rail/foto6.webp',
+      './assets/Honkai Star Rail/foto7.webp',
+      './assets/Honkai Star Rail/foto8.webp',
+      './assets/Honkai Star Rail/foto9.webp',
     ],
     video: '',
     url: '',
@@ -174,21 +174,21 @@ const games = [
     title: 'Mobile Legends: Bang Bang',
     genre: 'MOBA',
 
-    background: './assets/Mobile Legends/Wallpaper/foto1.jpg',
-    cover: './assets/Mobile Legends/Cover/foto1.jpg',
+    background: './assets/Mobile Legends/Wallpaper/foto1.webp',
+    cover: './assets/Mobile Legends/Cover/foto1.webp',
 
     profile: {
-      avatar: './assets/Mobile Legends/Profile/Profile.png',
+      avatar: './assets/Mobile Legends/Profile/Profile.webp',
       shape: 'square',
       size: 128,
       name: 'Ryce',
       copyName: false,
       bio: 'Midlaner • 1st Place — MLBB Banjarmasin (2023)',
       joined: '2016',
-      badges: [{ file: './assets/Mobile Legends/icon/TopGlobal.png', size: 20, title: 'Top Global Selena' },
-               { file: './assets/Mobile Legends/icon/MVP.png', size: 20, title: 'MVP Tournament' }],
+      badges: [{ file: './assets/Mobile Legends/icon/TopGlobal.webp', size: 20, title: 'Top Global Selena' },
+               { file: './assets/Mobile Legends/icon/MVP.webp', size: 20, title: 'MVP Tournament' }],
       frame: {
-        image: './assets/Mobile Legends/Border/Stardom.png',
+        image: './assets/Mobile Legends/Border/Stardom.webp',
         show: true,
         sparkle: true,
         size: 0,          // border width in px (0 = automatic)
@@ -206,13 +206,13 @@ const games = [
     description: '',
 
     gallery: [
-      './assets/Mobile Legends/foto1.jpg',
-      './assets/Mobile Legends/foto2.jpg',
-      './assets/Mobile Legends/foto3.jpg',
-      './assets/Mobile Legends/foto4.jpg',
-      './assets/Mobile Legends/foto5.jpg',
-      './assets/Mobile Legends/foto6.jpg',
-      './assets/Mobile Legends/foto7.jpg',
+      './assets/Mobile Legends/foto1.webp',
+      './assets/Mobile Legends/foto2.webp',
+      './assets/Mobile Legends/foto3.webp',
+      './assets/Mobile Legends/foto4.webp',
+      './assets/Mobile Legends/foto5.webp',
+      './assets/Mobile Legends/foto6.webp',
+      './assets/Mobile Legends/foto7.webp',
     ],
     video: '',
     url: '',
@@ -231,7 +231,7 @@ const games = [
     cover: './assets/Clash Of Clans/Wallpaper/Dragon Duke.webp',
 
     profile: {
-      avatar: './assets/Clash Of Clans/Profile/Profile.png',
+      avatar: './assets/Clash Of Clans/Profile/Profile.webp',
       shape: 'circle',
       size: 128,
       name: 'Ryce',
@@ -253,9 +253,9 @@ const games = [
     description: '',
 
     gallery: [
-      './assets/Clash Of Clans/foto1.jpg',
-      './assets/Clash Of Clans/foto2.jpg',
-      './assets/Clash Of Clans/foto3.jpg',
+      './assets/Clash Of Clans/foto1.webp',
+      './assets/Clash Of Clans/foto2.webp',
+      './assets/Clash Of Clans/foto3.webp',
     ],
     video: '',
     url: '',
@@ -270,11 +270,11 @@ const games = [
     title: 'Lost Saga',
     genre: 'Strategy',
 
-    background: './assets/Lost Saga/Wallpaper/foto4.jpg',
-    cover: './assets/Lost Saga/Cover/foto1.jpg',
+    background: './assets/Lost Saga/Wallpaper/foto4.webp',
+    cover: './assets/Lost Saga/Cover/foto1.webp',
 
     profile: {
-      avatar: './assets/Lost Saga/Profile/Profile.png',
+      avatar: './assets/Lost Saga/Profile/Profile.webp',
       shape: 'circle',
       size: 128,
       name: 'LexusDarkTao',
@@ -295,14 +295,14 @@ const games = [
     description: '',
 
     gallery: [
-      './assets/Lost Saga/foto1.jpg',
-      './assets/Lost Saga/foto2.jpg',
-      './assets/Lost Saga/foto3.jpg',
-      './assets/Lost Saga/foto4.jpg',
-      './assets/Lost Saga/foto5.jpg',
-      './assets/Lost Saga/foto6.jpg',
-      './assets/Lost Saga/foto7.jpg',
-      './assets/Lost Saga/foto8.jpg',
+      './assets/Lost Saga/foto1.webp',
+      './assets/Lost Saga/foto2.webp',
+      './assets/Lost Saga/foto3.webp',
+      './assets/Lost Saga/foto4.webp',
+      './assets/Lost Saga/foto5.webp',
+      './assets/Lost Saga/foto6.webp',
+      './assets/Lost Saga/foto7.webp',
+      './assets/Lost Saga/foto8.webp',
     ],
     video: '',
     url: '',
@@ -317,11 +317,11 @@ const games = [
     title: 'Chess',
     genre: 'Strategy',
 
-    background: './assets/Chess/Wallpaper/foto1.jpg',
-    cover: './assets/Chess/Cover/foto2.png',
+    background: './assets/Chess/Wallpaper/foto1.webp',
+    cover: './assets/Chess/Cover/foto2.webp',
 
     profile: {
-      avatar: './assets/Chess/Profile/Profile.png',
+      avatar: './assets/Chess/Profile/Profile.webp',
       shape: 'circle',
       size: 128,
       name: 'fikrispt',

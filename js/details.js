@@ -229,7 +229,7 @@ function buildProfileCard(game) {
   if (!hasAnything && !(game.profile && game.profile.name)) return '';
 
   const initial = esc((person.name || game.title).charAt(0).toUpperCase());
-  const avatar = person.avatar ? `<img data-asset="${esc(person.avatar)}" alt="">` : '';
+  const avatar = person.avatar ? `<img data-asset="${esc(person.avatar)}" alt="" decoding="async">` : '';
 
   // Decorative border around the picture (frame.js fits it and adds the sparkles)
   const frame = activeFrame(person);

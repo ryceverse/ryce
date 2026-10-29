@@ -6,11 +6,14 @@
 //   wrong upper/lower     Clash of Clans    ->  Clash Of Clans
 // The real file is found automatically.
 //
-// How it works:
-//   1. The list of files in your GitHub repo is read once
-//      (and remembered in the browser for 10 minutes).
-//   2. If that list is not available, the other extensions
-//      are tried one by one.
+// How it works (v12, fast):
+//   1. The picture is loaded from the path exactly as you wrote it.
+//      Nothing waits for anything else, so a correct path is the fastest path.
+//   2. Only when that file does not exist, the list of files in your GitHub repo
+//      is used to find the right one (the list is remembered in the browser;
+//      an old list is used right away and refreshed in the background).
+//   3. If that list is not available, the other extensions are tried one by one.
+//   A file that is in the list but really missing is NOT guessed again (no wasted requests).
 // =====================================================
 
 // Your GitHub repo (used only to read the file list)
@@ -24,7 +27,8 @@ const ASSET_EXTENSIONS = ['webp', 'jpg', 'jpeg', 'png', 'svg', 'avif', 'gif'];
 const ASSET_FOLDERS = ['assets/', 'images/'];
 const ASSET_CACHE_KEY = 'ryce-asset-files-v1';
 const ASSET_CACHE_MINUTES = 10;
-const ASSET_API_TIMEOUT = 4000;
+const ASSET_API_TIMEOUT = 3000;
+const ASSET_CACHE_MAX_DAYS = 7;   // an old list is still used (and refreshed in the background)
 const IMAGE_PATTERN = /\.(webp|jpe?g|png|svg|avif|gif)$/i;
 
 // ---------- Small helpers for paths ----------
@@ -63,11 +67,15 @@ function buildIndex(files) {
   return { byFullPath, byName };
 }
 
+// { files, fresh } or null. An old list is better than waiting for a new one.
 function readCachedFiles() {
   try {
     const saved = JSON.parse(localStorage.getItem(ASSET_CACHE_KEY));
-    const fresh = saved && Date.now() - saved.time < ASSET_CACHE_MINUTES * 60000;
-    return fresh ? saved.files : null;
+    if (!saved || !Array.isArray(saved.files)) return null;
+
+    const age = Date.now() - saved.time;
+    if (age > ASSET_CACHE_MAX_DAYS * 86400000) return null;
+    return { files: saved.files, fresh: age < ASSET_CACHE_MINUTES * 60000 };
   } catch (error) {
     return null;
   }
@@ -105,7 +113,10 @@ async function fetchRepoFiles() {
 
 async function loadAssetIndex() {
   const cached = readCachedFiles();
-  if (cached) return buildIndex(cached);
+  if (cached) {
+    if (!cached.fresh) fetchRepoFiles().then((files) => files && saveCachedFiles(files));   // refresh for next time
+    return buildIndex(cached.files);
+  }
 
   const files = await fetchRepoFiles();
   if (!files) return null;
@@ -161,17 +172,33 @@ async function probeImage(path) {
   return '';
 }
 
-async function findAsset(path) {
+// The slow way: ask the file list (or try other extensions). Only used when the path is wrong.
+async function searchAsset(path) {
   const index = await assetIndexReady;
   const found = index ? findInIndex(index, path) : '';
   if (found) return encodeURI(found);
 
-  // Not an image (e.g. a video): we cannot test it, use it as written
-  if (!IMAGE_PATTERN.test(path)) return encodeURI(cleanPath(path));
+  if (index) {
+    console.warn(`[assets] File not found: ${path}`);   // the list is known: no more guessing
+    return '';
+  }
 
   const probed = await probeImage(path);
   if (!probed) console.warn(`[assets] File not found: ${path}`);
   return probed;
+}
+
+async function findAsset(path) {
+  const clean = cleanPath(path);
+  const direct = encodeURI(clean);
+
+  // Not an image (e.g. a video): we cannot test it, use it as written
+  if (!IMAGE_PATTERN.test(clean)) return direct;
+
+  // Fast way: the path is right, so nothing has to wait for the file list
+  if (await preloadImage(direct)) return direct;
+
+  return searchAsset(path);
 }
 
 // ---------- Used by the rest of the site ----------
@@ -187,10 +214,28 @@ function resolveAsset(path) {
 }
 
 // <img data-asset="path"> and <video data-asset="path"> get their real src
+// The src is set immediately (so loading="lazy" keeps working). If the file is not
+// there, the right one is searched once and swapped in.
 function resolveImages(container = document) {
-  container.querySelectorAll('[data-asset]').forEach(async (element) => {
-    const url = await resolveAsset(element.dataset.asset);
-    if (url) element.src = url + (element.dataset.fragment || '');
+  container.querySelectorAll('[data-asset]').forEach((element) => {
+    const path = element.dataset.asset;
+    const fragment = element.dataset.fragment || '';
+    if (!path) return;
+
+    if (/^(https?:)?\/\//i.test(path) || path.startsWith('data:')) {
+      element.src = path + fragment;
+      return;
+    }
+
+    if (IMAGE_PATTERN.test(path)) {
+      element.addEventListener('error', async () => {
+        const url = await searchAsset(path);
+        if (url && url !== element.getAttribute('src')) element.src = url + fragment;
+        else element.removeAttribute('src');
+      }, { once: true });
+    }
+
+    element.src = encodeURI(cleanPath(path)) + fragment;
   });
 }
 

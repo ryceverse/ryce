@@ -54,7 +54,7 @@ const games = [
       copyName: false,
       bio: 'Hanya Pengembara yang lewat',
       joined: '2016',
-      badges: ['verified'],
+      badges: ['verified'],  
       frame: {
         image: './assets/Genshin Impact/Border/Border1.webp',
         show: true,
@@ -101,7 +101,13 @@ const games = [
       copyName: false,
       bio: 'Rehat Sejenak',
       joined: '2018',
-      badges: ['verified'],
+      badges: [
+        {
+        icon: 'verified',
+        file: './assets/Icon/Verified(White).png',
+        title: 'Verified White',
+        },
+      ],
       frame: {
         image: '',
         show: true,
@@ -150,7 +156,7 @@ const games = [
       joined: '2016',
       badges: ['verified'],
       frame: {
-        image: '',
+        image: './assets/Mobile Legends/Border/BorderMLBB.png',
         show: true,
         sparkle: true,
       },

@@ -43,4 +43,17 @@ const look = {
     discord: './assets/Social/discord.webp',
     default: './assets/Social/default.webp',
   },
+
+  // ---------- Profile borders (the decorative ring around the profile picture) ----------
+  // Every game has its own switch in data-games.js (profile.frame). These are the master switches.
+  frames: {
+    enabled: true,   // false = hide the border on EVERY game
+    sparkle: true,   // false = no twinkling lights on EVERY border
+  },
+
+  // ---------- Badges next to the name (verified ...) ----------
+  // The picture comes from the icon folder by name: 'verified' = Verified.png
+  badges: {
+    color: 'original',   // 'original' | 'white' | 'black'
+  },
 };

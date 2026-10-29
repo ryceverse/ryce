@@ -121,6 +121,13 @@ function drawBlurredBox(ctx, x, y, w, h) {
   ctx.drawImage(small, 0, 0, small.width, small.height, x, y, w, h);
 }
 
+// A badge picture from the icon folder (by name), or from its own file
+async function loadBadgePicture(badge) {
+  const item = typeof badge === 'string' ? { icon: badge } : badge;
+  const path = item.file || await findIconFile([item.icon || item.id]);
+  return path ? loadPicture(path) : null;
+}
+
 // ---------- The picture card ----------
 async function makeShareCard(game) {
   const person = getPerson(game);
@@ -132,19 +139,29 @@ async function makeShareCard(game) {
     loadPicture('images/ryceverse-wordmark.webp'),
   ]);
 
+  // Border around the avatar + badges next to the name (same settings as the popup)
+  const frame = activeFrame(person);
+  const frameInfo = frame ? await getFrameInfo(frame.image) : null;
+  const frameImage = frameInfo ? await loadPicture(frame.image) : null;
+  const frameExtra = frameImage ? Math.ceil(frameInfo.fit.extra * 240) : 0;   // how far it sticks out (px)
+  const badgePictures = (await Promise.all(person.badges.map(loadBadgePicture))).filter(Boolean);
+
   // ----- 1) Measure first, so the card is exactly as tall as it needs to be -----
   const measure = document.createElement('canvas').getContext('2d');
   const card = { x: 60, y: 300, w: CARD_WIDTH - 120, pad: 48, avatar: 240 };
-  const textX = card.x + card.pad + card.avatar + 48;
+  const avatarInset = Math.max(card.pad, frameExtra + 16);
+  const textX = card.x + avatarInset + card.avatar + frameExtra + 48;
   const textWidth = card.x + card.w - card.pad - textX;
 
-  const nameWidth = person.joined ? textWidth - 190 : textWidth;
+  const nameWidth = (person.joined ? textWidth - 190 : textWidth) - badgePictures.length * 56;
   let nameSize = 64;
   measure.font = `700 ${nameSize}px ${CARD_FONT}`;
   while (nameSize > 34 && measure.measureText(person.name).width > nameWidth) {
     nameSize -= 2;
     measure.font = `700 ${nameSize}px ${CARD_FONT}`;
   }
+
+  const nameTextWidth = measure.measureText(person.name).width;
 
   measure.font = `400 32px ${CARD_FONT}`;
   const bioLines = wrapLines(measure, person.bio, textWidth, 2);
@@ -154,7 +171,7 @@ async function makeShareCard(game) {
   const bioEnd = bioLines.length ? bioStart + (bioLines.length - 1) * 42 : nameBaseline;
   const statsTop = bioEnd + 58;
   const textBottom = stats.length ? statsTop + (stats.length - 1) * 62 : bioEnd;
-  const cardBottom = Math.max(card.y + card.pad * 2 + card.avatar, textBottom + card.pad);
+  const cardBottom = Math.max(card.y + avatarInset * 2 + card.avatar, textBottom + card.pad);
   card.h = cardBottom - card.y;
   const height = Math.max(1080, cardBottom + 300);
   const heroHeight = cardBottom + 70;   // the wallpaper reaches behind the whole card
@@ -209,8 +226,8 @@ async function makeShareCard(game) {
 
   // Avatar (round)
   const radius = card.avatar / 2;
-  const cx = card.x + card.pad + radius;
-  const cy = card.y + card.pad + radius;
+  const cx = card.x + avatarInset + radius;
+  const cy = card.y + avatarInset + radius;
 
   ctx.save();
   ctx.beginPath();
@@ -229,11 +246,18 @@ async function makeShareCard(game) {
   }
   ctx.restore();
 
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
-  ctx.lineWidth = 8;
-  ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-  ctx.stroke();
+  if (frameImage) {
+    // The decorative border, fitted exactly like in the popup
+    const fit = frameInfo.fit;
+    ctx.drawImage(frameImage, cx - radius + fit.x * card.avatar, cy - radius + fit.y * card.avatar,
+      fit.w * card.avatar, fit.h * card.avatar);
+  } else {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+    ctx.lineWidth = 8;
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.stroke();
+  }
 
   // Name + bio
   ctx.textAlign = 'left';
@@ -241,6 +265,14 @@ async function makeShareCard(game) {
   ctx.fillStyle = '#ffffff';
   ctx.font = `700 ${nameSize}px ${CARD_FONT}`;
   ctx.fillText(person.name, textX, nameBaseline);
+
+  // Badges (verified ...) next to the name
+  const badgeSize = Math.round(nameSize * 0.82);
+  let badgeX = textX + nameTextWidth + 14;
+  badgePictures.forEach((picture) => {
+    ctx.drawImage(picture, badgeX, nameBaseline - nameSize * 0.36 - badgeSize / 2, badgeSize, badgeSize);
+    badgeX += badgeSize + 10;
+  });
 
   ctx.font = `400 32px ${CARD_FONT}`;
   ctx.fillStyle = '#cfd3dc';

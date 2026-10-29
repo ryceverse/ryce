@@ -105,6 +105,8 @@ function getPerson(game) {
     joined: own.joined || '',
     copyName: Boolean(own.copyName),
     stats: (own.stats || []).filter((stat) => stat.value || stat.progress != null),
+    frame: own.frame || null,
+    badges: own.badges || [],
   };
 }
 
@@ -153,6 +155,22 @@ function buildStat(stat) {
     </div>`;
 }
 
+// Small icons next to the name. 'verified' = the picture Verified.png in the icon folder.
+//   badges: ['verified']                                  -> by name
+//   badges: [{ icon: 'verified', file: './x.png', title: 'Verified', color: 'original' }]
+function buildBadges(person) {
+  return person.badges.map((badge) => {
+    const item = typeof badge === 'string' ? { icon: badge } : badge;
+    const id = item.icon || item.id || '';
+    const color = item.color || (look.badges && look.badges.color) || 'original';
+
+    return `
+      <span class="badge" title="${esc(item.title || id)}">
+        ${renderIcon({ id, name: id, icon: item.file, iconColor: color })}
+      </span>`;
+  }).join('');
+}
+
 function buildProfileCard(game) {
   const person = getPerson(game);
   const hasAnything = person.avatar || person.bio || person.joined || person.stats.length;
@@ -161,15 +179,23 @@ function buildProfileCard(game) {
   const initial = esc((person.name || game.title).charAt(0).toUpperCase());
   const avatar = person.avatar ? `<img data-asset="${esc(person.avatar)}" alt="">` : '';
 
+  // Decorative border around the picture (frame.js fits it and adds the sparkles)
+  const frame = activeFrame(person);
+  const ringAttributes = frame
+    ? ` class="avatar-ring has-frame" data-frame="${esc(frame.image)}" data-sparkle="${frame.sparkle ? 1 : 0}" style="--frame-extra:0.3"`
+    : ' class="avatar-ring"';
+
   return `
     <section class="profile-card">
-      <div class="avatar-ring">
-        <span class="avatar-initial">${initial}</span>
-        ${avatar}
+      <div${ringAttributes}>
+        <div class="avatar-photo">
+          <span class="avatar-initial">${initial}</span>
+          ${avatar}
+        </div>
       </div>
 
       <div class="profile-head">
-        <h3 class="profile-name">${esc(person.name)}${person.copyName ? copyButton(person.name, 'name') : ''}</h3>
+        <h3 class="profile-name">${esc(person.name)}${buildBadges(person)}${person.copyName ? copyButton(person.name, 'name') : ''}</h3>
         ${person.bio ? `<p class="profile-bio">${esc(person.bio)}</p>` : ''}
       </div>
 
@@ -347,6 +373,8 @@ function openDetails(game) {
   paintImage(document.getElementById('banner-art'), game.background, game.focus || 'center');
 
   resolveImages(detailBody);
+  resolveIcons(detailBody);
+  applyFrames(detailBody);
   loadYoutubeThumbnails(detailBody);
   loadVideoPosters(detailBody);
   prepareShareCard(game);

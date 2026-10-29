@@ -17,6 +17,12 @@
 //   name      = nickname      copyName: true adds a copy icon next to it
 //   bio       = short text under the name
 //   joined    = year shown as "Bergabung"
+//   badges    = small icons next to the name, e.g. ['verified'] (picture: assets/Icon/Verified.png)
+//               [] = no badge. Several are possible: ['verified', 'discord']
+//   frame     = decorative border around the profile picture:
+//                 image   : path of the border picture (empty = no border)
+//                 show    : false = hide the border without deleting it
+//                 sparkle : false = no twinkling lights on this border
 //   stats     = rows under the bio:
 //                 { label: 'UID', value: '123', copy: true }        -> copy icon (copies the value)
 //                 { label: 'ID', value: '123 (45)', copy: '123' }   -> copy icon (copies only '123')
@@ -48,6 +54,12 @@ const games = [
       copyName: false,
       bio: 'Hanya Pengembara yang lewat',
       joined: '2016',
+      badges: ['verified'],
+      frame: {
+        image: './assets/Genshin Impact/Border/Border1.webp',
+        show: true,
+        sparkle: true,
+      },
       stats: [
         { label: 'UID', value: '820476661', copy: true },
         { label: 'AR', value: '60' },
@@ -89,6 +101,12 @@ const games = [
       copyName: false,
       bio: 'Rehat Sejenak',
       joined: '2018',
+      badges: ['verified'],
+      frame: {
+        image: '',
+        show: true,
+        sparkle: true,
+      },
       stats: [
         { label: 'UID', value: '808783651', copy: true },
         { label: 'TL', value: '70' },
@@ -130,6 +148,12 @@ const games = [
       copyName: false,
       bio: 'Tournament MVP • Midlaner • 1st Place — MLBB Banjarmasin',
       joined: '2016',
+      badges: ['verified'],
+      frame: {
+        image: '',
+        show: true,
+        sparkle: true,
+      },
       stats: [
         { label: 'ID', value: '97255743 (2504)', copy: '97255743' },
         { label: 'Rank', value: 'Mythical Immortal' },
@@ -170,6 +194,12 @@ const games = [
       copyName: false,
       bio: 'Hanya Pemain Biasa',
       joined: '2016',
+      badges: ['verified'],
+      frame: {
+        image: '',
+        show: true,
+        sparkle: true,
+      },
       stats: [
         { label: 'Player Tag', value: '#C89RRY8', copy: true },       
         { label: 'Town Hall', value: '17' },
@@ -205,6 +235,12 @@ const games = [
       copyName: true,
       bio: 'Selamat Istirahat COL!',
       joined: '2010',
+      badges: [],
+      frame: {
+        image: '',
+        show: true,
+        sparkle: true,
+      },
       stats: [
         { label: 'Rank', value: 'COL Class 2' },
         { label: 'Stats', progress: 90 },
@@ -244,6 +280,12 @@ const games = [
       copyName: true,
       bio: 'Mencoba Berfikir',
       joined: '2023',
+      badges: [],
+      frame: {
+        image: '',
+        show: true,
+        sparkle: true,
+      },
       stats: [
         { label: 'Rating', value: '1500' },
         { label: 'Skill', progress: 60 },  

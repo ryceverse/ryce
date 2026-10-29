@@ -49,6 +49,13 @@ const ICONS = {
     <rect x="4" y="14" width="6" height="6" rx="1"/>
     <path d="M14 14h2v2h-2zM18 14h2v2M16 18h4v2h-4zM14 18v2"/>`),
 
+  // Verified badge (filled, always blue and white)
+  verified: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path fill="#1d9bf0" d="M12 2l2.4 1.7 2.9-.1 1 2.7 2.4 1.7-.9 2.8.9 2.8-2.4 1.7-1 2.7-2.9-.1L12 22l-2.4-1.7-2.9.1-1-2.7-2.4-1.7.9-2.8-.9-2.8 2.4-1.7 1-2.7 2.9.1z"/>
+      <path d="M8 12.2l2.7 2.7L16 9.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+
   heart: svgIcon(`
     <path d="M12 20s-7-4.400-7-10a4 4 0 0 1 7-2.600A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/>`),
 };

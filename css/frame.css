@@ -1,0 +1,97 @@
+/* =====================================================
+   PROFILE BORDER, SPARKLES, BADGES
+   ===================================================== */
+
+/* Room for the border around the picture (the exact number is set by frame.js) */
+.avatar-ring.has-frame {
+  margin: calc(var(--avatar) * var(--frame-extra, 0.3));
+}
+
+/* The border replaces the simple ring */
+.avatar-ring.has-frame .avatar-photo {
+  border: 0;
+  box-shadow: none;
+}
+
+@keyframes frameIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+}
+
+.avatar-frame {
+  position: absolute;
+  left: calc(var(--avatar) * var(--frame-x));
+  top: calc(var(--avatar) * var(--frame-y));
+  width: calc(var(--avatar) * var(--frame-w));
+  height: calc(var(--avatar) * var(--frame-h));
+  pointer-events: none;
+  animation: frameIn 0.6s ease both;
+}
+
+.avatar-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- Sparkles: small stars that appear and fade on the border ---------- */
+@keyframes twinkle {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+  }
+  45% {
+    opacity: 1;
+    transform: scale(1) rotate(45deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0) rotate(90deg);
+  }
+}
+
+.sparkles {
+  position: absolute;
+  inset: 0;
+}
+
+.sparkle {
+  position: absolute;
+  width: calc(var(--avatar) * var(--k));
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  animation: twinkle var(--dur) ease-in-out forwards;
+}
+
+/* The 4-point star */
+.sparkle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%);
+}
+
+/* The soft light around it */
+.sparkle::after {
+  content: "";
+  position: absolute;
+  inset: -60%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 62%);
+}
+
+/* ---------- Badges next to the name (verified ...) ---------- */
+.badge {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+
+.badge svg,
+.badge img {
+  width: 0.85em;
+  height: 0.85em;
+  object-fit: contain;
+}

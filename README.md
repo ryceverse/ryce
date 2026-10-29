@@ -37,3 +37,9 @@ Discord: tambahkan satu entri di `js/data-socials.js` (lihat contoh di chat), ka
 - `js/data-look.js`: warna icon (`'white'`, `'black'`, `'original'`), folder icon (`assets/Icon/`), dan gambar background tiap kartu sosmed (`assets/Social/`, contoh sementara, ganti kapan saja).
 - Icon dicari otomatis dari folder `assets/Icon/` lewat namanya (youtube, tiktok, instagram, facebook, hoyolab, discord, saweria, qr). Tidak ketemu = icon bawaan.
 - `js/data-support.js`: kartu Support & Donate (jumlah kartu bebas, ukuran selalu sama).
+
+## Border profil, kilauan, badge, optimasi gambar (v10)
+- `profile.frame` di `js/data-games.js`: `image` (file border), `show` (ON/OFF), `sparkle` (kilauan ON/OFF). Saklar global ada di `look.frames` (`js/data-look.js`).
+- Border dipasang otomatis: website mencari lubang di tengah gambar border lalu menyesuaikan ukuran foto profil.
+- `profile.badges: ['verified']` menampilkan icon di samping nama (gambar `assets/Icon/Verified.png`).
+- `tools/optimize-images.html`: alat untuk mengecilkan gambar (buka di Chrome, tidak perlu install apa pun).

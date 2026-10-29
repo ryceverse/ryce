@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Image optimizer (Ryce)</title>
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 2rem 1rem 4rem; background: #0b0d12; color: #f1f1f3; font: 16px/1.6 "Segoe UI", system-ui, sans-serif; }
+    main { max-width: 860px; margin: 0 auto; }
+    h1 { margin: 0 0 .3rem; }
+    p, li { color: #a3a3ad; }
+    ol { padding-left: 1.2rem; }
+    .card { margin: 1.2rem 0; padding: 1.2rem; border: 1px solid #2b2b32; border-radius: 16px; background: #12151c; }
+    .row { display: flex; flex-wrap: wrap; gap: .8rem 1.5rem; align-items: center; }
+    label { color: #cfd3dc; }
+    input[type=number], input[type=text] { width: 110px; padding: .4rem .6rem; border-radius: 8px; border: 1px solid #2b2b32; background: #0b0d12; color: #fff; }
+    input[type=text] { width: 140px; }
+    button, .button { display: inline-block; padding: .7rem 1.2rem; border: 0; border-radius: 999px; background: #fff; color: #0b0d12; font: inherit; font-weight: 600; cursor: pointer; }
+    button:disabled { opacity: .4; cursor: default; }
+    .ghost { background: #232733; color: #fff; }
+    #drop { padding: 2rem 1rem; border: 2px dashed #3a3f50; border-radius: 16px; text-align: center; color: #a3a3ad; }
+    #drop.over { border-color: #fff; color: #fff; }
+    table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+    th, td { padding: .4rem .5rem; text-align: left; border-bottom: 1px solid #232733; }
+    td.num, th.num { text-align: right; white-space: nowrap; }
+    .good { color: #6ee7a0; }
+    #warning { color: #ffb4b4; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Image optimizer</h1>
+  <p>Makes your pictures small (WebP) so the website opens fast. Everything happens in your browser, nothing is uploaded anywhere.</p>
+
+  <ol>
+    <li>Click <b>Choose folder</b> and pick your <code>assets</code> folder (or drop it below).</li>
+    <li>Check the sizes in the table, then click <b>Optimize</b>.</li>
+    <li>Click <b>Download ZIP</b>, extract it and upload the files to GitHub (same folders).</li>
+  </ol>
+  <p>The website finds <code>foto1.webp</code> even when <code>data-games.js</code> says <code>foto1.jpg</code>, so you do not have to change any path.</p>
+  <p id="warning"></p>
+
+  <div class="card">
+    <div class="row">
+      <label>Quality (60 - 95) <input type="number" id="quality" min="60" max="95" value="82"></label>
+    </div>
+    <p>Maximum width in pixels per folder. The first keyword found in the path wins. <b>0 = leave the picture alone.</b></p>
+    <table id="rules"></table>
+  </div>
+
+  <div id="drop">Drop your <b>assets</b> folder here</div>
+  <div class="row" style="margin-top:1rem">
+    <label class="button ghost">Choose folder <input type="file" id="pick-folder" webkitdirectory multiple hidden></label>
+    <label class="button ghost">Choose pictures <input type="file" id="pick-files" accept="image/*" multiple hidden></label>
+    <button id="run" disabled>Optimize</button>
+    <button id="download" disabled>Download ZIP</button>
+  </div>
+
+  <div class="card">
+    <p id="summary">No pictures yet.</p>
+    <table id="result"></table>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// ---------- Settings: keyword in the path -> maximum width (0 = skip) ----------
+const RULES = [
+  { keyword: 'qr', maxWidth: 0 },          // QR codes must stay sharp
+  { keyword: 'icon', maxWidth: 0 },        // icons are already small
+  { keyword: 'social', maxWidth: 0 },
+  { keyword: 'wallpaper', maxWidth: 1920 },
+  { keyword: 'cover', maxWidth: 700 },
+  { keyword: 'profile', maxWidth: 512 },
+  { keyword: 'border', maxWidth: 720 },
+];
+const DEFAULT_WIDTH = 1600;                // everything else (gallery pictures ...)
+const PICTURE = /\.(png|jpe?g|webp)$/i;
+
+let items = [];
+
+const $ = (id) => document.getElementById(id);
+const kb = (bytes) => `${Math.round(bytes / 1024)} KB`;
+
+// ---------- Rules table ----------
+function drawRules() {
+  $('rules').innerHTML = '<tr><th>Keyword in the path</th><th>Max width</th></tr>' +
+    RULES.map((rule, i) => `
+      <tr>
+        <td><input type="text" data-i="${i}" data-field="keyword" value="${rule.keyword}"></td>
+        <td><input type="number" data-i="${i}" data-field="maxWidth" value="${rule.maxWidth}" min="0"></td>
+      </tr>`).join('') + `
+      <tr><td>everything else</td><td><input type="number" id="default-width" value="${DEFAULT_WIDTH}" min="0"></td></tr>`;
+}
+
+$('rules').addEventListener('input', (event) => {
+  const { i, field } = event.target.dataset;
+  if (i === undefined) return;
+  RULES[i][field] = field === 'maxWidth' ? Number(event.target.value) : event.target.value.toLowerCase();
+  drawResult();
+});
+
+function maxWidthFor(path) {
+  const lower = path.toLowerCase();
+  const rule = RULES.find((item) => item.keyword && lower.includes(item.keyword));
+  return rule ? rule.maxWidth : Number($('default-width').value);
+}
+
+// ---------- Collecting the files ----------
+function addFiles(files) {
+  items = files
+    .filter((file) => PICTURE.test(file.name))
+    .map((file) => ({ file, path: file.webkitRelativePath || file.fullPath || file.name, status: 'waiting' }));
+  $('run').disabled = !items.length;
+  $('download').disabled = true;
+  drawResult();
+}
+
+$('pick-folder').addEventListener('change', (event) => addFiles([...event.target.files]));
+$('pick-files').addEventListener('change', (event) => addFiles([...event.target.files]));
+
+// Folder dropped on the page
+function readEntry(entry) {
+  return new Promise((resolve) => {
+    if (entry.isFile) {
+      entry.file((file) => { file.fullPath = entry.fullPath.replace(/^\//, ''); resolve([file]); });
+    } else {
+      const reader = entry.createReader();
+      const all = [];
+      const readBatch = () => reader.readEntries(async (batch) => {
+        if (!batch.length) return resolve((await Promise.all(all.map(readEntry))).flat());
+        all.push(...batch);
+        readBatch();
+      });
+      readBatch();
+    }
+  });
+}
+
+['dragover', 'dragenter'].forEach((name) => $('drop').addEventListener(name, (event) => { event.preventDefault(); $('drop').classList.add('over'); }));
+['dragleave', 'drop'].forEach((name) => $('drop').addEventListener(name, () => $('drop').classList.remove('over')));
+$('drop').addEventListener('drop', async (event) => {
+  event.preventDefault();
+  const entries = [...event.dataTransfer.items].map((item) => item.webkitGetAsEntry()).filter(Boolean);
+  addFiles((await Promise.all(entries.map(readEntry))).flat());
+});
+
+// ---------- Optimizing ----------
+async function optimize(item, quality) {
+  const limit = maxWidthFor(item.path);
+  item.before = item.file.size;
+
+  if (!limit) { item.status = 'skipped'; return; }
+
+  const bitmap = await createImageBitmap(item.file, { imageOrientation: 'from-image' });
+  const scale = Math.min(1, limit / bitmap.width);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  canvas.getContext('2d').drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', quality));
+
+  if (!blob || blob.size >= item.before) { item.status = 'already small'; return; }
+
+  item.blob = blob;
+  item.after = blob.size;
+  item.outPath = item.path.replace(/\.[a-z0-9]+$/i, '.webp');
+  item.status = 'done';
+}
+
+$('run').addEventListener('click', async () => {
+  const quality = Math.min(95, Math.max(60, Number($('quality').value))) / 100;
+  $('run').disabled = true;
+
+  for (let i = 0; i < items.length; i++) {
+    $('summary').textContent = `Working... ${i + 1} / ${items.length}`;
+    try {
+      await optimize(items[i], quality);
+    } catch (error) {
+      items[i].status = 'error';
+    }
+    drawResult();
+  }
+
+  const saved = items.filter((item) => item.status === 'done');
+  const before = saved.reduce((sum, item) => sum + item.before, 0);
+  const after = saved.reduce((sum, item) => sum + item.after, 0);
+  $('summary').innerHTML = saved.length
+    ? `Done: <b>${kb(before)}</b> became <b class="good">${kb(after)}</b> (${Math.round((1 - after / before) * 100)}% smaller).`
+    : 'Nothing to change.';
+  $('download').disabled = !saved.length;
+  $('run').disabled = false;
+});
+
+$('download').addEventListener('click', async () => {
+  const zip = new JSZip();
+  items.filter((item) => item.status === 'done').forEach((item) => zip.file(item.outPath, item.blob));
+
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(await zip.generateAsync({ type: 'blob' }));
+  link.download = 'optimized-images.zip';
+  link.click();
+});
+
+// ---------- Result table ----------
+function drawResult() {
+  if (!items.length) { $('result').innerHTML = ''; return; }
+
+  $('result').innerHTML = '<tr><th>Picture</th><th class="num">Before</th><th class="num">After</th><th>Max width</th><th>Status</th></tr>' +
+    items.map((item) => `
+      <tr>
+        <td>${item.path}</td>
+        <td class="num">${kb(item.file.size)}</td>
+        <td class="num">${item.after ? `<span class="good">${kb(item.after)}</span>` : '-'}</td>
+        <td>${maxWidthFor(item.path) || 'skip'}</td>
+        <td>${item.status}</td>
+      </tr>`).join('');
+}
+
+// WebP needs Chrome, Edge or Firefox
+const canWebp = document.createElement('canvas').toDataURL('image/webp').startsWith('data:image/webp');
+if (!canWebp) $('warning').textContent = 'This browser cannot make WebP pictures. Please open this page in Chrome or Edge.';
+
+drawRules();
+</script>
+</body>
+</html>

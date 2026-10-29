@@ -297,40 +297,59 @@ async function makeShareCard(game) {
   }
 
   // Stats: label, value, progress bar (same order as in the popup)
+  // The label column is only as wide as the longest label, so the values start right after it
+  // and get all the room that is left. A long value gets a slightly smaller font instead of
+  // running out of the card.
+  const endX = card.x + card.w - card.pad;
+  ctx.font = `500 32px ${CARD_FONT}`;
+  const labelWidth = Math.max(0, ...stats.map((stat) => ctx.measureText(stat.label).width));
+  const startX = textX + Math.ceil(labelWidth) + 44;
+  const BAR_MIN = 150;   // a bar never gets thinner than this
+  const GAP = 24;        // space between text and bar
+
+  // Sets the value font (34 px, smaller when needed) and gives back the width of the text
+  const fitValue = (text, room) => {
+    let size = 34;
+    ctx.font = `700 ${size}px ${CARD_FONT}`;
+    while (size > 22 && ctx.measureText(text).width > room) {
+      size -= 2;
+      ctx.font = `700 ${size}px ${CARD_FONT}`;
+    }
+    return ctx.measureText(text).width;
+  };
+
   stats.forEach((stat, index) => {
     const y = statsTop + index * 62;
-    const startX = textX + 190;
-    const endX = card.x + card.w - card.pad;
 
     ctx.font = `500 32px ${CARD_FONT}`;
     ctx.fillStyle = '#8f95a6';
     ctx.fillText(stat.label, textX, y);
 
     const text = stat.value ? String(stat.value) : '';
-    ctx.font = `700 34px ${CARD_FONT}`;
-    const textWidth = text ? ctx.measureText(text).width : 0;
+    ctx.fillStyle = '#ffffff';
 
     // Only text
     if (stat.progress == null) {
-      ctx.fillStyle = '#ffffff';
+      fitValue(text, endX - startX);
       ctx.fillText(text, startX, y);
       return;
     }
 
     const percent = Number(stat.progress) || 0;
+    const textRoom = endX - startX - BAR_MIN - GAP;
+    const textWidth = text ? fitValue(text, textRoom) : 0;
 
     if (stat.valueSide === 'left') {
       // text, then bar
-      ctx.fillStyle = '#ffffff';
       ctx.fillText(text, startX, y);
-      const barX = startX + (text ? textWidth + 24 : 0);
+      const barX = startX + (text ? textWidth + GAP : 0);
       drawBar(ctx, barX, y - 22, Math.min(320, endX - barX), 18, percent);
     } else {
       // bar, then text
-      const barWidth = Math.min(300, endX - startX - (text ? textWidth + 24 : 0));
+      const barWidth = Math.min(300, endX - startX - (text ? textWidth + GAP : 0));
       drawBar(ctx, startX, y - 22, barWidth, 18, percent);
       ctx.fillStyle = '#ffffff';
-      ctx.fillText(text, startX + barWidth + 24, y);
+      ctx.fillText(text, startX + barWidth + GAP, y);
     }
   });
 

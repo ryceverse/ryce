@@ -59,6 +59,26 @@
 <!-- Music widget (floating) -->
 <script src="https://cdn.jsdelivr.net/gh/fixsarts/MusicWidgets@main/music-player.js" defer></script>
 
+  <script src="https://cdn.jsdelivr.net/gh/fixsarts/widgets@main/Flip%20Clock/flip-clock.js"></script>
+<div id="jam"></div>
+
+<script>
+  FixsFlipClock.create("#jam", {
+    "theme": "light",
+    "colors": {
+      "text": "#ffffff"
+    },
+    "show": {
+      "hours": true,
+      "minutes": true,
+      "seconds": true,
+      "date": true
+    },
+    "hour12": true,
+    "size": 130
+  });
+</script>
+
   <!-- cursor costume -->
 <script src="https://fixsarts.github.io/cursor/cursor.js"></script>
   

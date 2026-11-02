@@ -63,16 +63,20 @@
 <script>
   FixsFlipClock.create("#jam", {
     "theme": "dark",
+    "colors": {
+      "background": "#000000"
+    },
     "show": {
       "hours": true,
       "minutes": true,
-      "seconds": false,
-      "date": true
+      "seconds": true,
+      "date": true,
+      "ampm": false
     },
-    "hour12": false,
-    "size": 55,
+    "hour12": true,
+    "separator": "colon",
+    "size": 46,
     "locale": "id-ID",
-    "credit": false,
     "position": "bottom-right",
     "dateFormat": {
       "weekday": "long",
@@ -81,8 +85,7 @@
       "year": "numeric",
       "comma": true,
       "uppercase": true
-    },
-    "gapDate": 4
+    }
   });
 </script>
   

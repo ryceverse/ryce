@@ -57,37 +57,19 @@
   <script src="js/main.js"></script>
 
 <!-- Flip-Clock widget -->  
-<script src="https://cdn.jsdelivr.net/gh/fixsarts/widgets@main/Flip%20Clock/flip-clock.js"></script>
-<div id="jam"></div>
+<script src="https://cdn.jsdelivr.net/gh/fixsarts/widgets@main/Flip%20Clock/flip-clock.js" defer></script>
 
-<script>
-  FixsFlipClock.create("#jam", {
-    "theme": "dark",
-    "colors": {
-      "background": "#000000"
-    },
-    "show": {
-      "hours": true,
-      "minutes": true,
-      "seconds": true,
-      "date": true,
-      "ampm": false
-    },
-    "hour12": true,
-    "separator": "colon",
-    "size": 46,
-    "locale": "id-ID",
-    "position": "bottom-right",
-    "dateFormat": {
-      "weekday": "long",
-      "day": "2-digit",
-      "month": "short",
-      "year": "numeric",
-      "comma": true,
-      "uppercase": true
-    }
-  });
-</script>
+<div data-fixs-flipclock
+     data-theme="light"
+     data-bg="#ffffff"
+     data-card="#ffffff"
+     data-hour12="false"
+     data-separator="colon"
+     data-size="70"
+     data-locale="id-ID"
+     data-position="top-right"
+     data-date-year="2-digit"
+     data-date-uppercase="true"></div>
   
 <!-- Music widget (floating) -->
 <script src="https://cdn.jsdelivr.net/gh/fixsarts/MusicWidgets@main/music-player.js" defer></script>
